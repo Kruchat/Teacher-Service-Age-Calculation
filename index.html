@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#ffffff">
 
-    <title>แอปคำนวณอายุราชการ (v15 - All Fields Required)</title>
+    <title>แอปคำนวณอายุราชการ (v16 - Welcome Guide)</title>
     
     <!-- (Scripts and Fonts) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -199,7 +199,7 @@
         /* (v14) Result Display Styles (Simplified) */
         .result-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 20px; /* (v14) A bit more padding */
+            padding: 12px 20px; 
             border-bottom: 1px solid #f1f5f9;
             background-color: white;
         }
@@ -285,6 +285,38 @@
         .instructions-box ol { list-style: decimal; padding-left: 20px; margin-top: 8px; }
         .instructions-box summary { font-weight: 600; cursor: pointer; }
 
+        /* (v16) Welcome Guide Modal */
+        #modal-container-guide {
+            z-index: 2000; /* ให้อยู่เหนือ Modal อื่นๆ */
+        }
+        .guide-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 12px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .guide-step-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 99px;
+            font-size: 16px;
+        }
+        .guide-step-text h5 {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .guide-step-text p {
+            font-size: 14px;
+            color: #475569;
+        }
+
     </style>
 </head>
 <body>
@@ -297,6 +329,68 @@
 
     <!-- (File Inputs) -->
     <input type="file" id="import-file-input" class="hidden" accept=".json, .txt" onchange="window.handleFileImport(event)">
+
+    <!-- (v16) Welcome Guide Modal -->
+    <div id="modal-container-guide" class="hidden">
+        <div id="modal-backdrop-guide" class="modal-backdrop"></div>
+        <div id="modal-box-guide" class="modal-container p-6">
+            
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 bg-gradient-to-br from-brand-500 to-accent-500 text-white rounded-full flex items-center justify-center text-4xl mx-auto shadow-lg shadow-brand-200">
+                    <i class="fa-solid fa-rocket"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-800 mt-4">ยินดีต้อนรับ (v16)</h3>
+                <p class="text-slate-600">คู่มือการใช้งาน (AI-First)</p>
+            </div>
+            
+            <div class="space-y-3">
+                <div class="guide-step">
+                    <div class="guide-step-icon bg-slate-100 text-slate-500">
+                        <i class="fa-solid fa-user-pen"></i>
+                    </div>
+                    <div class="guide-step-text">
+                        <h5>1. กรอกชื่อ-สกุล</h5>
+                        <p>กรอกชื่อ-สกุล สำหรับบันทึกรายการ</p>
+                    </div>
+                </div>
+                
+                <div class="guide-step">
+                    <div class="guide-step-icon bg-ai-100 text-ai-600">
+                        <i class="fa-solid fa-keyboard"></i>
+                    </div>
+                    <div class="guide-step-text">
+                        <h5>2. พิมพ์วันที่ (AI)</h5>
+                        <p>พิมพ์วันที่บรรจุ (เช่น '10 กค 34') AI จะตรวจสอบและแปลงค่าให้ (รอจน Spinner หาย)</p>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="guide-step-icon bg-ai-100 text-ai-600">
+                        <i class="fa-solid fa-cake-candles"></i>
+                    </div>
+                    <div class="guide-step-text">
+                        <h5>3. พิมพ์วันเกิด (AI)</h5>
+                        <p>พิมพ์วันเกิด (เช่น '15 พ.ค. 2530') AI จะตรวจสอบเช่นกัน</p>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="guide-step-icon bg-accent-100 text-accent-600">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <div class="guide-step-text">
+                        <h5>4. ปุ่มคำนวณปรากฏ</h5>
+                        <p>เมื่อข้อมูลครบ 3 ช่อง ปุ่ม "คำนวณและบันทึก" สีเขียวจะปรากฏขึ้น</p>
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-close-guide" class="btn btn-primary w-full mt-6">
+                <i class="fa-solid fa-check mr-2"></i>
+                เริ่มใช้งาน
+            </button>
+        </div>
+    </div>
 
     <!-- (v14) Result Modal (Simplified) -->
     <div id="result-modal-container" class="hidden">
@@ -354,7 +448,7 @@
         <header class="px-6 py-4 flex justify-between items-center sticky top-0 shadow-sm bg-white/80 z-40 backdrop-filter: blur(12px) border-b border-slate-100/80">
             <div class="flex flex-col">
                 <h1 class="text-xl font-bold text-brand-600">คำนวณอายุราชการ</h1>
-                <p id="header-subtitle" class="text-sm text-slate-500">v15 - All Fields Required</p>
+                <p id="header-subtitle" class="text-sm text-slate-500">v16 - Welcome Guide</p>
             </div>
             <div id="header-icon-container" class="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 border-4 border-white shadow-md">
                 <i id="header-icon" class="fa-solid fa-calculator text-xl"></i>
@@ -568,9 +662,11 @@
         const DAYS_PER_YEAR = 365;
         const LOCAL_STORAGE_KEY = 'service_year_data_v14'; // (v14)
         const GAS_URL_KEY = 'service_year_gas_url_v14'; // (v14)
+        // (v16) เพิ่ม Key สำหรับ Guide
+        const GUIDE_STORAGE_KEY = 'service_year_guide_shown_v16';
         
         // (v11) ฝัง AI PROXY URL ที่นี่
-        const AI_PROXY_URL = "https://script.google.com/macros/s/AKfycbyIINKHZlCXae04qg3_YNQWMtRBa576TUAeI7YtlcO8b7aUeYLT6vSNN-p2xIfK0lfj/exec";
+        const AI_PROXY_URL = "https://script.google.com/macros/s/AKfycbyFwanfh3H6insVEgiOVQblpvFyVZMtynjTfWbrYqAMeM8P37VORdMa0IGsDLeq-dFq/exec";
 
         const THAI_MONTHS = [
             "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", 
@@ -580,9 +676,8 @@
         // --- STATE & DOM ---
         let state = {
             savedCalculations: [],
-            currentView: 'view-saved',
+            currentView: 'view-saved', // (v16) จะถูกเปลี่ยนใน initApp
             currentModalData: null, 
-            // (v15) สถานะความถูกต้องของฟอร์ม (เพิ่ม birthDate)
             formState: {
                 name: false,
                 startDate: false,
@@ -606,12 +701,11 @@
             headerIconContainer: document.getElementById('header-icon-container'),
             
             // View Calc (Form)
-            calcFormContainer: document.getElementById('calc-form-container'), // (v14)
+            calcFormContainer: document.getElementById('calc-form-container'), 
             formTitle: document.getElementById('form-title'),
             formId: document.getElementById('form-id'),
             formName: document.getElementById('form-name'),
-            // (v14) ลบ formLeave, formMult
-            btnCalcSave: document.getElementById('btn-calc-save'), // (v14)
+            btnCalcSave: document.getElementById('btn-calc-save'), 
 
             // (v12) AI-First Date Pickers
             formStartSmart: document.getElementById('form-start-smart'),
@@ -639,10 +733,13 @@
             resultNetAtRetirement: document.getElementById('result-net-at-retirement'),
             resultNet: document.getElementById('result-net'),
             resultContextDates: document.getElementById('result-context-dates'),
-            // (v14) ลบ Row (ดิบ, ลา, ทวีคูณ)
             resultTotalDays: document.getElementById('result-total-days'), 
             btnAiAnalyze: document.getElementById('btn-ai-analyze'), 
             aiAnalysisContainer: document.getElementById('ai-analysis-container'), 
+
+            // (v16) Guide Modal
+            guideModalContainer: document.getElementById('modal-container-guide'),
+            btnCloseGuide: document.getElementById('btn-close-guide'),
 
             // Toast
             toast: document.getElementById('toast'),
@@ -654,7 +751,9 @@
         function initApp() {
             loadCalculations();
             loadAppsScriptUrl();
-            switchView('view-saved');
+            
+            // (v16) Request 1: ค่าเริ่มต้นเป็นหน้า "เพิ่ม/แก้ไข"
+            switchView('view-calc'); 
             
             // (v14) Listeners สำหรับ Form Validation
             dom.formName.addEventListener('input', (e) => {
@@ -663,7 +762,6 @@
             });
             dom.formStartSmart.addEventListener('blur', (e) => handleSmartDateInput(e.target, dom.formStartSpinner, dom.formStartISO, 'startDate'));
             dom.formBirthSmart.addEventListener('blur', (e) => handleSmartDateInput(e.target, dom.formBirthSpinner, dom.formBirthISO, 'birthDate'));
-            // (v14) Listener สำหรับการล้างค่า
             dom.formStartSmart.addEventListener('input', (e) => {
                 if(e.target.value.trim() === '') {
                     dom.formStartISO.value = '';
@@ -678,6 +776,23 @@
                     checkFormValidity();
                 }
             });
+            
+            // (v16) Request 2: แสดง Guide Modal
+            dom.btnCloseGuide.addEventListener('click', hideGuideModal);
+            
+            const guideShown = localStorage.getItem(GUIDE_STORAGE_KEY);
+            if (!guideShown) {
+                showGuideModal();
+            }
+        }
+
+        // --- (v16) GUIDE MODAL FUNCTIONS ---
+        function showGuideModal() {
+            dom.guideModalContainer.classList.remove('hidden');
+        }
+        function hideGuideModal() {
+            dom.guideModalContainer.classList.add('hidden');
+            localStorage.setItem(GUIDE_STORAGE_KEY, 'true');
         }
 
         // --- NAVIGATION & UTILS ---
@@ -750,7 +865,6 @@
             if (data) {
                 try { 
                     state.savedCalculations = JSON.parse(data); 
-                    // (v14) ลบ Logic (leave/mult)
                     state.savedCalculations.forEach(item => {
                         if (!item.birthDate) item.birthDate = null;
                     });
@@ -1074,7 +1188,6 @@
                 const d1 = new Date(item.startDate);
                 const rawYmd = calculateDifference(d1, d2);
                 const rawDays = ymdToDays(rawYmd);
-                // (v14) ลบ leave/mult
                 const netDays = rawDays;
                 const netYmd = daysToYmd(netDays);
 
@@ -1114,7 +1227,6 @@
             const d1 = new Date(item.startDate);
             const d2 = new Date(); 
             
-            // (v14) ลบ leave/mult
             const retirementDateObj = getRetirementDate(item.birthDate);
             
             let netYmdAtRetirement = null;
@@ -1124,7 +1236,6 @@
 
             if (retirementDateObj) {
                 const rawYmdAtRetirement = calculateDifference(d1, retirementDateObj);
-                // (v14) ลบ leave/mult
                 netYmdAtRetirement = daysToYmd(ymdToDays(rawYmdAtRetirement));
                 
                 dom.resultNetAtRetirement.textContent = formatYmd(netYmdAtRetirement);
@@ -1143,7 +1254,6 @@
             }
 
             const rawYmd = calculateDifference(d1, d2);
-            // (v14) ลบ leave/mult
             const netDays = ymdToDays(rawYmd);
             const netYmd = daysToYmd(netDays);
             
@@ -1152,9 +1262,6 @@
             dom.resultContextDates.textContent = `(คำนวณจาก ${d1.toLocaleDateString('th-TH', { dateStyle: 'short' })} ถึง ${d2.toLocaleDateString('th-TH', { dateStyle: 'short' })})`;
             dom.resultTotalDays.textContent = netDays.toLocaleString() + ' วัน';
             
-            // (v14) ลบ Logic การซ่อน/แสดง แถว
-            
-            // (v14) บันทึกข้อมูลสำหรับ AI (Simplified)
             state.currentModalData = {
                 name: item.name,
                 netToday: netYmd,
@@ -1194,7 +1301,6 @@
                     method: 'POST',
                     mode: 'cors',
                     headers: { 'Content-Type': 'text/plain' },
-                    // (v14) ส่ง Payload ที่ Simplified
                     body: JSON.stringify({ 
                         action: 'analyze_results', 
                         payload: state.currentModalData 
@@ -1287,7 +1393,6 @@
             console.log("Auto-syncing to Google Sheet in background...");
 
             try {
-                // (v14) Payload ที่ส่งไป Sheet จะไม่มี leave/mult แล้ว
                 const payload = JSON.stringify(state.savedCalculations);
                 const response = await fetch(url, {
                     method: 'POST', mode: 'cors', 
@@ -1325,6 +1430,7 @@
         window.handleCreateNew = handleCreateNew;
         window.handleSmartDateInput = handleSmartDateInput; 
         window.handleAiAnalysis = handleAiAnalysis; 
+        window.hideGuideModal = hideGuideModal; // (v16)
 
         // --- Start App ---
         initApp();
