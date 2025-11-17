@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#ffffff">
 
-    <title>แอปคำนวณอายุราชการ (v13 - AI Analysis)</title>
+    <title>แอปคำนวณอายุราชการ (v14 - Modern AI)</title>
     
     <!-- (Scripts and Fonts) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -35,13 +35,13 @@
                         'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
                         'scale-in': 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
                         'fade-in': 'fadeIn 0.3s ease-out',
-                        'spin': 'spin 1s linear infinite', // (v10) for AI Spinner
+                        'spin': 'spin 1s linear infinite', 
                     },
                     keyframes: {
                         slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
                         scaleIn: { '0%': { transform: 'scale(0.9)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } },
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-                        spin: { // (v10)
+                        spin: { 
                             '0%': { transform: 'rotate(0deg)' },
                             '100%': { transform: 'rotate(360deg)' },
                         },
@@ -134,15 +134,28 @@
         .btn-danger { background-color: #ef4444; color: white; }
         .btn-danger:hover { background-color: #dc2626; }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        /* (v13) AI Button Style */
         .btn-ai {
-            background-color: #f5f3ff; /* ai-50 */
-            color: #7c3aed; /* ai-600 */
-            border: 1px solid #ede9fe; /* ai-100 */
+            background-color: #f5f3ff; 
+            color: #7c3aed; 
+            border: 1px solid #ede9fe; 
             box-shadow: none;
         }
         .btn-ai:hover {
-            background-color: #ede9fe; /* ai-100 */
+            background-color: #ede9fe; 
+        }
+        /* (v14) Style for Calculate Button */
+        .btn-calc {
+            background-color: #059669; /* accent-600 */
+            color: white;
+            padding: 16px 20px; /* Bigger */
+            border-radius: 16px;
+            font-size: 16px;
+        }
+        .btn-calc:hover {
+            background-color: #047857; /* accent-700 */
+        }
+        .btn-calc.hidden {
+            display: none;
         }
 
         /* (Modal Styles) */
@@ -182,10 +195,10 @@
             }
         }
         
-        /* (Result Display Styles - v8) */
+        /* (v14) Result Display Styles (Simplified) */
         .result-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 20px; 
+            padding: 12px 20px; /* (v14) A bit more padding */
             border-bottom: 1px solid #f1f5f9;
             background-color: white;
         }
@@ -193,47 +206,18 @@
         .result-label { font-weight: 500; color: #334155; }
         .result-value { font-weight: 600; font-size: 1rem; color: #0284c7; }
         
-        .result-details {
-            background-color: #f8fafc; 
-            border-top: 1px solid #f1f5f9;
-        }
-        .result-details summary {
-            padding: 12px 20px;
-            cursor: pointer;
-            list-style: none;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #475569; 
-        }
-        .result-details summary::-webkit-details-marker { display: none; }
-        .result-details summary::after {
-            content: '\f078'; 
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            font-size: 0.7rem;
-            transition: transform 0.2s;
-        }
-        details[open].result-details > summary::after {
-            transform: rotate(180deg);
-        }
-        .result-details-content {
-            padding: 0; 
-            border-top: 1px solid #f1f5f9;
-        }
-        
+        /* (v14) ลบ .result-details */
+
         /* (v13) AI Analysis Result Box */
         #ai-analysis-container {
             padding: 16px 20px;
-            background-color: #f5f3ff; /* ai-50 */
-            border-top: 1px solid #ede9fe; /* ai-100 */
+            background-color: #f5f3ff; 
+            border-top: 1px solid #ede9fe; 
             border-bottom: 1px solid #ede9fe;
         }
         #ai-analysis-container p {
             font-size: 0.9rem;
-            color: #5b21b6; /* ai-700 */
+            color: #5b21b6; 
             line-height: 1.6;
         }
         #ai-analysis-container .ai-spinner {
@@ -242,7 +226,7 @@
             gap: 10px;
             font-size: 0.9rem;
             font-weight: 600;
-            color: #7c3aed; /* ai-600 */
+            color: #7c3aed; 
         }
         #ai-analysis-container .ai-spinner i {
             animation: spin 1s linear infinite;
@@ -302,48 +286,7 @@
         .instructions-box ol { list-style: decimal; padding-left: 20px; margin-top: 8px; }
         .instructions-box summary { font-weight: 600; cursor: pointer; }
 
-        /* (v6) <details> and <summary> Styles */
-        details.form-details { 
-            background-color: white;
-            border-radius: 16px; 
-            border: 1px solid #e2e8f0; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
-            overflow: hidden; 
-        }
-        details[open].form-details {
-            box-shadow: 0 4px 10px -1px rgba(0,0,0,0.05);
-        }
-        summary.form-summary { 
-            padding: 20px; 
-            cursor: pointer;
-            list-style: none; 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 1.125rem; 
-            font-weight: 700; 
-            color: #1e293b; 
-        }
-        summary.form-summary::-webkit-details-marker {
-            display: none; 
-        }
-        summary.form-summary::after {
-            content: '\f078'; 
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            font-size: 0.8rem;
-            color: #64748b; 
-            transition: transform 0.2s ease-in-out;
-        }
-        details[open] > summary.form-summary {
-            border-bottom: 1px solid #f1f5f9; 
-        }
-        details[open] > summary.form-summary::after {
-            transform: rotate(180deg);
-        }
-        .details-content {
-            padding: 20px;
-        }
+        /* (v14) ลบ <details> and <summary> ของ Form */
 
     </style>
 </head>
@@ -358,7 +301,7 @@
     <!-- (File Inputs) -->
     <input type="file" id="import-file-input" class="hidden" accept=".json, .txt" onchange="window.handleFileImport(event)">
 
-    <!-- (v13) Result Modal (เพิ่ม AI Button) -->
+    <!-- (v14) Result Modal (Simplified) -->
     <div id="result-modal-container" class="hidden">
         <div class="modal-backdrop" onclick="window.hideResultModal()"></div>
         <div class="modal-container">
@@ -368,7 +311,7 @@
                  <h3 id="result-modal-title" class="text-xl font-bold text-slate-800">...</h3>
             </div>
             
-            <!-- (v8) Retirement Card -->
+            <!-- Retirement Card -->
             <div id="retirement-card" class="hidden bg-gradient-to-br from-brand-500 to-brand-600 text-white p-5 m-4 rounded-2xl shadow-lg shadow-sky-200">
                 <h4 class="text-sm font-semibold opacity-90">อายุราชการสุทธิ (ณ วันเกษียณ)</h4>
                 <p id="result-net-at-retirement" class="text-3xl font-bold my-1">...</p>
@@ -376,40 +319,23 @@
                 <p id="retirement-countdown-result" class="text-xs opacity-80 mt-2">...</p>
             </div>
 
-            <!-- (v8) Result Card (Today) -->
-            <div class="result-card m-4 mt-0">
-                <!-- (v8) สรุปวันนี้ -->
+            <!-- Result Card (Today) -->
+            <div class="result-card m-4 mt-0 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <!-- สรุปวันนี้ -->
                 <div class="p-5 text-center">
                     <p class="text-sm font-medium text-slate-500">อายุราชการสุทธิ (วันนี้)</p>
                     <p id="result-net" class="text-3xl font-bold text-brand-600 my-1">...</p>
                     <p id="result-context-dates" class="text-xs text-slate-400">...</p>
                 </div>
-                <!-- (v8) รายละเอียดการคำนวณ -->
-                <details class="result-details">
-                    <summary>ดูรายละเอียดการคำนวณ</summary>
-                    <div class="result-details-content">
-                        <div id="result-row-raw" class="result-row hidden">
-                            <span class="result-label">อายุราชการ (ดิบ)</span>
-                            <span id="result-raw" class="result-value">...</span>
-                        </div>
-                        <div id="result-row-leave" class="result-row hidden">
-                            <span class="result-label">หักวันลา</span>
-                            <span id="result-leave" class="result-value">...</span>
-                        </div>
-                        <div id="result-row-mult" class="result-row hidden">
-                            <span class="result-label">บวกวันทวีคูณ</span>
-                            <span id="result-mult" class="result-value">...</span>
-                        </div>
-                        <div class="result-row">
-                            <span class="result-label">รวม (วันสุทธิ)</span>
-                            <span id="result-total-days" class="result-value">...</span>
-                        </div>
-                    </div>
-                </details>
+                <!-- (v14) รวมวันสุทธิ (ย้ายออกมา) -->
+                <div class="result-row border-t border-slate-100">
+                    <span class="result-label">รวม (วันสุทธิ)</span>
+                    <span id="result-total-days" class="result-value">...</span>
+                </div>
             </div>
             
-            <!-- (v13) AI Analysis Section -->
-            <div id="ai-analysis-container" class="hidden">
+            <!-- AI Analysis Section -->
+            <div id="ai-analysis-container" class="hidden m-4 mt-0">
                 <!-- AI content or spinner goes here -->
             </div>
             
@@ -431,7 +357,7 @@
         <header class="px-6 py-4 flex justify-between items-center sticky top-0 shadow-sm bg-white/80 z-40 backdrop-filter: blur(12px) border-b border-slate-100/80">
             <div class="flex flex-col">
                 <h1 class="text-xl font-bold text-brand-600">คำนวณอายุราชการ</h1>
-                <p id="header-subtitle" class="text-sm text-slate-500">v13 - AI Analysis</p>
+                <p id="header-subtitle" class="text-sm text-slate-500">v14 - Modern AI</p>
             </div>
             <div id="header-icon-container" class="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 border-4 border-white shadow-md">
                 <i id="header-icon" class="fa-solid fa-calculator text-xl"></i>
@@ -451,10 +377,11 @@
                 </div>
             </section>
             
-            <!-- (View 2: Calculator / Edit Form - v12) -->
+            <!-- (View 2: Calculator / Edit Form - v14) -->
             <section id="view-calc" class="hidden p-6 space-y-4">
                 
-                <form id="calc-form" onsubmit="window.handleSave(event); return false;" class="space-y-4">
+                <!-- (v14) ลบ <form> ออก และเพิ่มปุ่มคำนวณที่ควบคุมโดย JS -->
+                <div id="calc-form-container" class="space-y-4">
                     
                     <input type="hidden" id="form-id">
                     <input type="hidden" id="form-start-iso">
@@ -471,7 +398,7 @@
                                 <input type="text" id="form-name" class="form-input" placeholder="เช่น นายสมชาย ใจดี" required>
                             </div>
                             
-                            <!-- (v12) AI-First Input -->
+                            <!-- AI-First Input -->
                             <div>
                                 <label for="form-start-smart" class="form-label flex items-center gap-2">
                                     <i class="fa-solid fa-calendar-check fa-fw text-slate-400"></i>
@@ -485,7 +412,7 @@
                                 </div>
                             </div>
                             
-                            <!-- (v12) AI-First Input -->
+                            <!-- AI-First Input -->
                             <div>
                                 <label for="form-birth-smart" class="form-label flex items-center gap-2">
                                     <i class="fa-solid fa-cake-candles fa-fw text-slate-400"></i>
@@ -501,69 +428,25 @@
                         </div>
                     </div>
                     
-                    <!-- (v6) หักวันลา -->
-                    <details class="form-details">
-                        <summary class="form-summary">
-                            <span class="flex items-center gap-3">
-                                <i class="fa-solid fa-calendar-minus fa-fw text-danger-500"></i>
-                                <span>หักวันลา (ที่ไม่นับอายุ)</span>
-                            </span>
-                        </summary>
-                        <div class="details-content grid grid-cols-3 gap-3">
-                            <div>
-                                <label for="form-leave-y" class="form-label">ปี</label>
-                                <input type="number" id="form-leave-y" class="form-input" min="0" placeholder="0">
-                            </div>
-                            <div>
-                                <label for="form-leave-m" class="form-label">เดือน</label>
-                                <input type="number" id="form-leave-m" class="form-input" min="0" placeholder="0">
-                            </div>
-                            <div>
-                                <label for="form-leave-d" class="form-label">วัน</label>
-                                <input type="number" id="form-leave-d" class="form-input" min="0" placeholder="0">
-                            </div>
-                        </div>
-                    </details>
-                    
-                    <!-- (v6) เพิ่มวันทวีคูณ -->
-                    <details class="form-details">
-                        <summary class="form-summary">
-                            <span class="flex items-center gap-3">
-                                <i class="fa-solid fa-calendar-plus fa-fw text-accent-500"></i>
-                                <span>เพิ่มวันทวีคูณ</span>
-                            </span>
-                        </summary>
-                        <div class="details-content grid grid-cols-3 gap-3">
-                            <div>
-                                <label for="form-mult-y" class="form-label">ปี</label>
-                                <input type="number" id="form-mult-y" class="form-input" min="0" placeholder="0">
-                            </div>
-                            <div>
-                                <label for="form-mult-m" class="form-label">เดือน</label>
-                                <input type="number" id="form-mult-m" class="form-input" min="0" placeholder="0">
-                            </div>
-                            <div>
-                                <label for="form-mult-d" class="form-label">วัน</label>
-                                <input type="number" id="form-mult-d" class="form-input" min="0" placeholder="0">
-                            </div>
-                        </div>
-                    </details>
+                    <!-- (v14) ลบ <details> วันลา และ ทวีคูณ ออก -->
 
-                    <div class="grid grid-cols-1 gap-3 pt-2">
-                        <button id="btn-save-result" type="submit" class="btn bg-accent-600 hover:bg-accent-500 text-white">
-                            <i class="fa-solid fa-save mr-2"></i> บันทึก
+                    <!-- (v14) ปุ่มคำนวณและบันทึก (ถูกซ่อนไว้) -->
+                    <div class="pt-2">
+                        <button id="btn-calc-save" type="button" onclick="window.calculateAndShow()" class="btn btn-calc w-full hidden">
+                            <i class="fa-solid fa-calculator mr-2"></i>
+                            คำนวณและบันทึก
                         </button>
                     </div>
-                </form>
+                </div>
             </section>
             
-            <!-- (View 3: Manage / Settings - v11) -->
+            <!-- (View 3: Manage / Settings - v14) -->
             <section id="view-manage" class="hidden p-6 space-y-6">
                 
-                <!-- (v11) AI Proxy Settings - ลบช่องกรอกออก -->
+                <!-- (v11) AI Proxy Settings -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-slate-800">AI Proxy Settings (v13)</h3>
+                        <h3 class="text-lg font-bold text-slate-800">AI Proxy Settings (v14)</h3>
                         <i class="fa-solid fa-server text-2xl text-ai-500"></i>
                     </div>
                     <p class="text-sm text-slate-600 p-3 bg-blue-50 rounded-lg border border-blue-200">
@@ -589,7 +472,7 @@
                     <!-- (Code.gs) -->
                     <details class="mt-4">
                          <summary class="instructions-box summary">
-                            <i class="fa-solid fa-code"></i> โค้ดสำหรับ Data Sync (Code.gs)
+                            <i class="fa-solid fa-code"></i> โค้ดสำหรับ Data Sync (v14 - Simplified)
                         </summary>
                         <div class="instructions-box mt-2">
                             <pre class="overflow-x-auto p-2 bg-slate-700 text-white rounded-md text-xs"><code>function doPost(e) {
@@ -609,14 +492,10 @@
       return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "Data was empty, sheet cleared." })).setMimeType(ContentService.MimeType.JSON);
     }
 
+    // (v14) ลบ Logic การแปลง {y,m,d} (เพราะเราลบ field นั้นทิ้ง)
     var headers = Object.keys(data[0]);
     var values = data.map(function(row) {
       return headers.map(function(header) {
-        if (typeof row[header] === 'object' && row[header] !== null) {
-          if (row[header].y !== undefined) {
-            return `${row[header].y} ปี ${row[header].m} เดือน ${row[header].d} วัน`;
-          }
-        }
         return row[header] !== undefined ? row[header] : "";
       });
     });
@@ -690,11 +569,10 @@
         // --- CONSTANTS ---
         const DAYS_PER_MONTH = 30;
         const DAYS_PER_YEAR = 365;
-        const LOCAL_STORAGE_KEY = 'service_year_data_v4';
-        const GAS_URL_KEY = 'service_year_gas_url_v4';
+        const LOCAL_STORAGE_KEY = 'service_year_data_v14'; // (v14)
+        const GAS_URL_KEY = 'service_year_gas_url_v14'; // (v14)
         
-        // (v11) ฝัง AI PROXY URL ที่นี่
-        const AI_PROXY_URL = "https://script.google.com/macros/s/AKfycbwuibJtnxxAOC9ihAYuyaDDeZ2s1XmRGufRfXblgEyzPRTiXBTjQJghERTdshlHDd35/exec";
+        const AI_PROXY_URL = "https://script.google.com/macros/s/AKfycbyGzNyiu6bHyb5BU8ay8Myt6bnPFldJgo_WIcm7WUVLyDa-BGn9oKkFbb8scMbzJy7W/exec";
 
         const THAI_MONTHS = [
             "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", 
@@ -705,7 +583,13 @@
         let state = {
             savedCalculations: [],
             currentView: 'view-saved',
-            currentModalData: null, // (v13)
+            currentModalData: null, 
+            // (v14) สถานะความถูกต้องของฟอร์ม
+            formState: {
+                name: false,
+                startDate: false,
+                birthDate: false
+            }
         };
         
         const dom = {
@@ -724,18 +608,13 @@
             headerIconContainer: document.getElementById('header-icon-container'),
             
             // View Calc (Form)
-            calcForm: document.getElementById('calc-form'),
+            calcFormContainer: document.getElementById('calc-form-container'), // (v14)
             formTitle: document.getElementById('form-title'),
             formId: document.getElementById('form-id'),
             formName: document.getElementById('form-name'),
-            formLeaveY: document.getElementById('form-leave-y'),
-            formLeaveM: document.getElementById('form-leave-m'),
-            formLeaveD: document.getElementById('form-leave-d'),
-            formMultY: document.getElementById('form-mult-y'),
-            formMultM: document.getElementById('form-mult-m'),
-            formMultD: document.getElementById('form-mult-d'),
-            btnSaveResult: document.getElementById('btn-save-result'),
-            
+            // (v14) ลบ formLeave, formMult
+            btnCalcSave: document.getElementById('btn-calc-save'), // (v14)
+
             // (v12) AI-First Date Pickers
             formStartSmart: document.getElementById('form-start-smart'),
             formStartSpinner: document.getElementById('form-start-spinner'), 
@@ -753,7 +632,7 @@
             importFileInput: document.getElementById('import-file-input'),
             inputDataJson: document.getElementById('input-data-json'),
             
-            // Result Modal (v13)
+            // Result Modal (v14)
             resultModalContainer: document.getElementById('result-modal-container'),
             resultModalTitle: document.getElementById('result-modal-title'),
             retirementCard: document.getElementById('retirement-card'),
@@ -762,15 +641,10 @@
             resultNetAtRetirement: document.getElementById('result-net-at-retirement'),
             resultNet: document.getElementById('result-net'),
             resultContextDates: document.getElementById('result-context-dates'),
-            resultRowRaw: document.getElementById('result-row-raw'), 
-            resultRaw: document.getElementById('result-raw'),
-            resultRowLeave: document.getElementById('result-row-leave'), 
-            resultLeave: document.getElementById('result-leave'),
-            resultRowMult: document.getElementById('result-row-mult'), 
-            resultMult: document.getElementById('result-mult'),
+            // (v14) ลบ Row (ดิบ, ลา, ทวีคูณ)
             resultTotalDays: document.getElementById('result-total-days'), 
-            btnAiAnalyze: document.getElementById('btn-ai-analyze'), // (v13)
-            aiAnalysisContainer: document.getElementById('ai-analysis-container'), // (v13)
+            btnAiAnalyze: document.getElementById('btn-ai-analyze'), 
+            aiAnalysisContainer: document.getElementById('ai-analysis-container'), 
 
             // Toast
             toast: document.getElementById('toast'),
@@ -784,8 +658,28 @@
             loadAppsScriptUrl();
             switchView('view-saved');
             
-            dom.formStartSmart.addEventListener('blur', (e) => handleSmartDateInput(e.target, dom.formStartSpinner, dom.formStartISO));
-            dom.formBirthSmart.addEventListener('blur', (e) => handleSmartDateInput(e.target, dom.formBirthSpinner, dom.formBirthISO));
+            // (v14) Listeners สำหรับ Form Validation
+            dom.formName.addEventListener('input', (e) => {
+                state.formState.name = e.target.value.trim().length > 0;
+                checkFormValidity();
+            });
+            dom.formStartSmart.addEventListener('blur', (e) => handleSmartDateInput(e.target, dom.formStartSpinner, dom.formStartISO, 'startDate'));
+            dom.formBirthSmart.addEventListener('blur', (e) => handleSmartDateInput(e.target, dom.formBirthSpinner, dom.formBirthISO, 'birthDate'));
+            // (v14) Listener สำหรับการล้างค่า
+            dom.formStartSmart.addEventListener('input', (e) => {
+                if(e.target.value.trim() === '') {
+                    dom.formStartISO.value = '';
+                    state.formState.startDate = false;
+                    checkFormValidity();
+                }
+            });
+            dom.formBirthSmart.addEventListener('input', (e) => {
+                if(e.target.value.trim() === '') {
+                    dom.formBirthISO.value = '';
+                    state.formState.birthDate = false;
+                    checkFormValidity();
+                }
+            });
         }
 
         // --- NAVIGATION & UTILS ---
@@ -846,7 +740,7 @@
 
         function showToast(msg, type='success') {
             dom.toastMsg.textContent = msg;
-            dom.toastIcon.className = type==='success' ? "fa-solid fa-circle-check text-emerald-400" : "fa-solid fa-circle-exclamation text-rose-400";
+            dom.toastIcon.className = type==='success' ? "fa-solid fa-check-circle text-emerald-400" : "fa-solid fa-circle-exclamation text-rose-400";
             dom.toast.classList.remove('opacity-0', 'translate-y-[-20px]');
             setTimeout(() => dom.toast.classList.add('opacity-0', 'translate-y-[-20px]'), 3000);
         }
@@ -858,10 +752,9 @@
             if (data) {
                 try { 
                     state.savedCalculations = JSON.parse(data); 
+                    // (v14) ลบ Logic (leave/mult)
                     state.savedCalculations.forEach(item => {
                         if (!item.birthDate) item.birthDate = null;
-                        if (!item.leave) item.leave = {y:0, m:0, d:0};
-                        if (!item.mult) item.mult = {y:0, m:0, d:0};
                     });
                 } catch (e) { state.savedCalculations = []; }
             } else {
@@ -881,12 +774,17 @@
         }
         
         
-        // --- (v12) SMART DATE (AI PROXY) ---
+        // --- (v14) SMART DATE (AI PROXY) ---
         
-        async function handleSmartDateInput(smartInput, spinnerEl, isoHiddenInput) {
+        /**
+         * (v14) อัปเดต handleSmartDateInput (AI Proxy)
+         */
+        async function handleSmartDateInput(smartInput, spinnerEl, isoHiddenInput, stateKey) {
             const text = smartInput.value.trim();
             if (!text) {
                 isoHiddenInput.value = '';
+                state.formState[stateKey] = false;
+                checkFormValidity();
                 return;
             }
             
@@ -905,7 +803,6 @@
                     method: 'POST',
                     mode: 'cors',
                     headers: { 'Content-Type': 'text/plain' },
-                    // (v13) ส่ง action: 'parse_date'
                     body: JSON.stringify({ action: 'parse_date', text: text })
                 });
                 
@@ -914,9 +811,11 @@
                 if (result.status === 'success' && result.type === 'date' && result.isoDate) {
                     isoHiddenInput.value = result.isoDate;
                     smartInput.value = formatISODateForDisplay(result.isoDate);
+                    state.formState[stateKey] = true; // (v14)
                 } else if (result.status === 'success' && result.type === 'date' && !result.isoDate) {
                     showToast(`AI ไม่เข้าใจรูปแบบวันที่: "${text}"`, 'error');
                     isoHiddenInput.value = ''; 
+                    state.formState[stateKey] = false; // (v14)
                 } else {
                     throw new Error(result.message || "AI Proxy Error (Invalid Response Type)");
                 }
@@ -924,14 +823,16 @@
             } catch (error) {
                 console.error("AI Proxy Fetch Error:", error);
                 showToast(`AI Proxy ล้มเหลว: ${error.message}`, 'error');
+                state.formState[stateKey] = false; // (v14)
             } finally {
                 spinnerEl.classList.add('hidden'); 
                 smartInput.disabled = false;
+                checkFormValidity(); // (v14)
             }
         }
         
         
-        // --- (v12) DATE PICKER HELPER FUNCTIONS (REMOVED/REFACTORED) ---
+        // --- (v12) DATE PICKER HELPER FUNCTIONS ---
         
         function formatISODateForDisplay(isoString) {
             if (!isoString) return "";
@@ -948,7 +849,11 @@
         }
 
         // --- CORE CALCULATION LOGIC ---
-
+        // (v14) ลบ ymdToDays, daysToYmd เพราะย้ายไป AI Proxy
+        // (v14) อัปเดต: ไม่ได้ย้ายไป AI Proxy แต่ย้ายไป AI Analysis
+        // (v14) อัปเดต 2: ตรรกะ ymdToDays/daysToYmd ยังต้องใช้สำหรับ *การคำนวณ* (ไม่ใช่การ Parse)
+        // ดังนั้น นำกลับมา
+        
         function calculateDifference(d1, d2) {
             if (!d1 || !d2 || d2 < d1) return { y: 0, m: 0, d: 0 };
             let y = d2.getFullYear() - d1.getFullYear();
@@ -962,10 +867,15 @@
             if (m < 0) { y--; m += 12; }
             return { y, m, d };
         }
+        
+        // (v14) ยังต้องใช้ฟังก์ชันนี้
         function ymdToDays(ymd) {
             if (!ymd) return 0;
+            // (v14) ทำให้ง่ายขึ้น (เพราะไม่มี leave/mult)
             return (ymd.y * DAYS_PER_YEAR) + (ymd.m * DAYS_PER_MONTH) + ymd.d;
         }
+
+        // (v14) ยังต้องใช้ฟังก์ชันนี้
         function daysToYmd(totalDays) {
             totalDays = Math.max(0, totalDays); 
             const y = Math.floor(totalDays / DAYS_PER_YEAR);
@@ -979,6 +889,7 @@
             }
             return { y, m, d };
         }
+        
         function formatYmd(ymd) {
             if (!ymd) return "N/A";
             return `${ymd.y} ปี ${ymd.m} เดือน ${ymd.d} วัน`;
@@ -998,22 +909,51 @@
 
         // --- EVENT HANDLERS (CRUD) ---
 
+        /**
+         * (v14) ใหม่: ตรวจสอบฟอร์มเพื่อแสดงปุ่มบันทึก
+         */
+        function checkFormValidity() {
+            const { name, startDate, birthDate } = state.formState;
+            // (v14) BirthDate เป็น Optional (ถ้าไม่กรอก ก็ไม่แสดงผลเกษียณ)
+            if (name && startDate) {
+                dom.btnCalcSave.classList.remove('hidden');
+            } else {
+                dom.btnCalcSave.classList.add('hidden');
+            }
+        }
+        
+        /**
+         * (v14) อัปเดต handleCreateNew
+         */
         function handleCreateNew() {
-            dom.calcForm.reset();
+            // (v14) ลบ .reset() เพราะเราจะเคลียร์เอง
             dom.formId.value = '';
+            dom.formName.value = '';
             
             dom.formStartSmart.value = '';
             dom.formBirthSmart.value = '';
             dom.formStartISO.value = '';
             dom.formBirthISO.value = '';
             
+            // (v14) รีเซ็ต state
+            state.formState.name = false;
+            state.formState.startDate = false;
+            state.formState.birthDate = false;
+            checkFormValidity(); // (v14) ซ่อนปุ่ม
+
             dom.formTitle.textContent = "เพิ่มรายการใหม่";
-            dom.btnSaveResult.innerHTML = `<i class="fa-solid fa-save mr-2"></i> บันทึก`;
+            dom.btnCalcSave.textContent = "คำนวณและบันทึก";
             updateHeader('view-calc');
         }
 
-        function handleSave(event) {
-            event.preventDefault();
+        /**
+         * (v14) อัปเดต handleSave
+         * @param {Event | null} event - (v14) อาจเป็น null
+         * @param {boolean} [shouldSwitchView=true] - (v14) พารามิเตอร์ใหม่
+         * @returns {string | null} - ID ของรายการที่บันทึก
+         */
+        function handleSave(event, shouldSwitchView = true) {
+            if(event) event.preventDefault(); // (v14) ป้องกัน submit ถ้าเรียกจาก form (ซึ่งตอนนี้ไม่)
             
             const id = dom.formId.value || `calc_${Date.now()}`;
             const name = dom.formName.value;
@@ -1021,14 +961,9 @@
             const startDateISO = dom.formStartISO.value || null;
             const birthDateISO = dom.formBirthISO.value || null;
 
-            if (!name) {
-                showToast('กรุณากรอกชื่อ-สกุล', 'error');
-                dom.formName.focus();
-                return;
-            }
-            if (!startDateISO) {
-                showToast('กรุณากรอก วันที่บรรจุ (และรอ AI ตรวจสอบ)', 'error');
-                return;
+            if (!name || !startDateISO) {
+                showToast('ข้อมูลไม่ครบ (ชื่อ หรือ วันที่บรรจุ)', 'error');
+                return null;
             }
 
             const record = {
@@ -1036,16 +971,7 @@
                 name: name,
                 startDate: startDateISO, 
                 birthDate: birthDateISO, 
-                leave: {
-                    y: parseInt(dom.formLeaveY.value) || 0,
-                    m: parseInt(dom.formLeaveM.value) || 0,
-                    d: parseInt(dom.formLeaveD.value) || 0,
-                },
-                mult: {
-                    y: parseInt(dom.formMultY.value) || 0,
-                    m: parseInt(dom.formMultM.value) || 0,
-                    d: parseInt(dom.formMultD.value) || 0,
-                }
+                // (v14) ลบ leave และ mult
             };
             
             const isEditing = !!dom.formId.value;
@@ -1061,12 +987,36 @@
             saveCalculationsToStorage();
             triggerAutoSync();
             
-            showToast(isEditing ? `อัปเดต '${record.name}' สำเร็จ` : `บันทึก '${record.name}' สำเร็จ`);
+            if (shouldSwitchView) {
+                showToast(isEditing ? `อัปเดต '${record.name}' สำเร็จ` : `บันทึก '${record.name}' สำเร็จ`);
+                dom.formId.value = ''; 
+                switchView('view-saved'); 
+            }
             
-            dom.formId.value = ''; 
-            switchView('view-saved'); 
+            return id; // (v14) คืนค่า ID
+        }
+        
+        /**
+         * (v14) ใหม่: ฟังก์ชันสำหรับ Workflow ใหม่
+         */
+        function calculateAndShow() {
+            // 1. บันทึก (โดยไม่สลับหน้า)
+            const savedId = handleSave(null, false);
+            
+            if (savedId) {
+                // 2. แสดง Modal ผลลัพธ์ (ตามที่คุณขอ)
+                showResultModal(savedId);
+                
+                // 3. (v14) ถ้าเป็นการ "เพิ่มใหม่" (ไม่ใช่แก้ไข) ให้เคลียร์ฟอร์ม
+                if (!dom.formId.value) {
+                    handleCreateNew();
+                }
+            }
         }
 
+        /**
+         * (v14) อัปเดต handleEdit
+         */
         function handleEdit(id) {
             const item = state.savedCalculations.find(i => i.id === id);
             if (!item) return;
@@ -1079,16 +1029,17 @@
             
             dom.formStartSmart.value = formatISODateForDisplay(item.startDate);
             dom.formBirthSmart.value = formatISODateForDisplay(item.birthDate);
-
-            dom.formLeaveY.value = item.leave?.y || '';
-            dom.formLeaveM.value = item.leave?.m || '';
-            dom.formLeaveD.value = item.leave?.d || '';
-            dom.formMultY.value = item.mult?.y || '';
-            dom.formMultM.value = item.mult?.m || '';
-            dom.formMultD.value = item.mult?.d || '';
+            
+            // (v14) ลบ leave/mult
+            
+            // (v14) ตั้งค่า state สำหรับปุ่ม
+            state.formState.name = true;
+            state.formState.startDate = !!item.startDate;
+            state.formState.birthDate = !!item.birthDate;
+            checkFormValidity(); // (v14) แสดงปุ่ม
             
             dom.formTitle.textContent = "แก้ไขรายการ";
-            dom.btnSaveResult.innerHTML = `<i class="fa-solid fa-save mr-2"></i> อัปเดต`;
+            dom.btnCalcSave.textContent = "อัปเดตและคำนวณ";
             
             switchView('view-calc');
         }
@@ -1138,9 +1089,8 @@
                 const d1 = new Date(item.startDate);
                 const rawYmd = calculateDifference(d1, d2);
                 const rawDays = ymdToDays(rawYmd);
-                const leaveDays = ymdToDays(item.leave || {y:0,m:0,d:0});
-                const multDays = ymdToDays(item.mult || {y:0,m:0,d:0});
-                const netDays = rawDays - leaveDays + multDays;
+                // (v14) ลบ leave/mult
+                const netDays = rawDays;
                 const netYmd = daysToYmd(netDays);
 
                 return `
@@ -1167,23 +1117,19 @@
         }
         
         /**
-         * (v13) อัปเดต showResultModal
+         * (v14) อัปเดต showResultModal
          */
         function showResultModal(id) {
             const item = state.savedCalculations.find(i => i.id === id);
             if (!item) return;
             
-            // (v13) เคลียร์ผลวิเคราะห์เก่า
             dom.aiAnalysisContainer.classList.add('hidden');
             dom.aiAnalysisContainer.innerHTML = '';
 
             const d1 = new Date(item.startDate);
             const d2 = new Date(); 
             
-            const leaveDays = ymdToDays(item.leave);
-            const multDays = ymdToDays(item.mult);
-            const hasAdjustments = (leaveDays > 0 || multDays > 0);
-            
+            // (v14) ลบ leave/mult
             const retirementDateObj = getRetirementDate(item.birthDate);
             
             let netYmdAtRetirement = null;
@@ -1193,9 +1139,8 @@
 
             if (retirementDateObj) {
                 const rawYmdAtRetirement = calculateDifference(d1, retirementDateObj);
-                const rawDaysAtRetirement = ymdToDays(rawYmdAtRetirement);
-                const netDaysAtRetirement = rawDaysAtRetirement - leaveDays + multDays;
-                netYmdAtRetirement = daysToYmd(netDaysAtRetirement);
+                // (v14) ลบ leave/mult
+                netYmdAtRetirement = daysToYmd(ymdToDays(rawYmdAtRetirement));
                 
                 dom.resultNetAtRetirement.textContent = formatYmd(netYmdAtRetirement);
                 
@@ -1213,8 +1158,8 @@
             }
 
             const rawYmd = calculateDifference(d1, d2);
-            const rawDays = ymdToDays(rawYmd);
-            const netDays = rawDays - leaveDays + multDays;
+            // (v14) ลบ leave/mult
+            const netDays = ymdToDays(rawYmd);
             const netYmd = daysToYmd(netDays);
             
             dom.resultModalTitle.textContent = item.name;
@@ -1222,21 +1167,14 @@
             dom.resultContextDates.textContent = `(คำนวณจาก ${d1.toLocaleDateString('th-TH', { dateStyle: 'short' })} ถึง ${d2.toLocaleDateString('th-TH', { dateStyle: 'short' })})`;
             dom.resultTotalDays.textContent = netDays.toLocaleString() + ' วัน';
             
-            dom.resultRowRaw.classList.toggle('hidden', !hasAdjustments);
-            dom.resultRaw.textContent = formatYmd(rawYmd);
-            dom.resultRowLeave.classList.toggle('hidden', leaveDays <= 0);
-            dom.resultLeave.textContent = formatYmd(item.leave);
-            dom.resultRowMult.classList.toggle('hidden', multDays <= 0);
-            dom.resultMult.textContent = formatYmd(item.mult);
+            // (v14) ลบ Logic การซ่อน/แสดง แถว
             
-            // (v13) บันทึกข้อมูลสำหรับ AI
+            // (v14) บันทึกข้อมูลสำหรับ AI (Simplified)
             state.currentModalData = {
                 name: item.name,
                 netToday: netYmd,
                 netAtRetirement: netYmdAtRetirement,
                 countdown: countdownYmd,
-                leave: item.leave,
-                mult: item.mult
             };
             
             dom.resultModalContainer.classList.remove('hidden');
@@ -1244,11 +1182,11 @@
         
         function hideResultModal() {
             dom.resultModalContainer.classList.add('hidden');
-            state.currentModalData = null; // (v13)
+            state.currentModalData = null; 
         }
 
         /**
-         * (v13) ใหม่: ฟังก์ชันเรียก AI วิเคราะห์ผล
+         * (v14) อัปเดต AI Analysis (ลบ leave/mult)
          */
         async function handleAiAnalysis() {
             if (!state.currentModalData) return;
@@ -1271,7 +1209,7 @@
                     method: 'POST',
                     mode: 'cors',
                     headers: { 'Content-Type': 'text/plain' },
-                    // (v13) ส่ง action: 'analyze_results' และ payload
+                    // (v14) ส่ง Payload ที่ Simplified
                     body: JSON.stringify({ 
                         action: 'analyze_results', 
                         payload: state.currentModalData 
@@ -1364,6 +1302,7 @@
             console.log("Auto-syncing to Google Sheet in background...");
 
             try {
+                // (v14) Payload ที่ส่งไป Sheet จะไม่มี leave/mult แล้ว
                 const payload = JSON.stringify(state.savedCalculations);
                 const response = await fetch(url, {
                     method: 'POST', mode: 'cors', 
@@ -1386,6 +1325,7 @@
         // --- Window Attachments ---
         window.switchView = switchView;
         window.handleSave = handleSave;
+        window.calculateAndShow = calculateAndShow; // (v14)
         window.handleEdit = handleEdit;
         window.handleDelete = handleDelete;
         window.renderSavedList = renderSavedList;
@@ -1399,7 +1339,7 @@
         window.triggerAutoSync = triggerAutoSync;
         window.handleCreateNew = handleCreateNew;
         window.handleSmartDateInput = handleSmartDateInput; 
-        window.handleAiAnalysis = handleAiAnalysis; // (v13)
+        window.handleAiAnalysis = handleAiAnalysis; 
 
         // --- Start App ---
         initApp();
