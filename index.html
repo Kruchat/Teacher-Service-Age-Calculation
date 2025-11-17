@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#ffffff">
 
-    <title>แอปคำนวณอายุราชการ (v14 - Modern AI)</title>
+    <title>แอปคำนวณอายุราชการ (v15 - All Fields Required)</title>
     
     <!-- (Scripts and Fonts) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -92,10 +92,11 @@
         .form-input, .form-textarea, .form-select { 
             width: 100%; background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 14px; font-size: 14px; color: #1e293b; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02); 
             appearance: none;
-            background-image: none;
+            background-image: none; /* (v15) ลบลูกศรจาก <input> ทั้งหมด */
             padding-right: 14px;
         }
         .form-select {
+            /* (v15) คืนลูกศรให้ <select> เท่านั้น */
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
             background-position: right 0.7rem center;
             background-repeat: no-repeat;
@@ -206,8 +207,6 @@
         .result-label { font-weight: 500; color: #334155; }
         .result-value { font-weight: 600; font-size: 1rem; color: #0284c7; }
         
-        /* (v14) ลบ .result-details */
-
         /* (v13) AI Analysis Result Box */
         #ai-analysis-container {
             padding: 16px 20px;
@@ -286,8 +285,6 @@
         .instructions-box ol { list-style: decimal; padding-left: 20px; margin-top: 8px; }
         .instructions-box summary { font-weight: 600; cursor: pointer; }
 
-        /* (v14) ลบ <details> and <summary> ของ Form */
-
     </style>
 </head>
 <body>
@@ -357,7 +354,7 @@
         <header class="px-6 py-4 flex justify-between items-center sticky top-0 shadow-sm bg-white/80 z-40 backdrop-filter: blur(12px) border-b border-slate-100/80">
             <div class="flex flex-col">
                 <h1 class="text-xl font-bold text-brand-600">คำนวณอายุราชการ</h1>
-                <p id="header-subtitle" class="text-sm text-slate-500">v14 - Modern AI</p>
+                <p id="header-subtitle" class="text-sm text-slate-500">v15 - All Fields Required</p>
             </div>
             <div id="header-icon-container" class="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 border-4 border-white shadow-md">
                 <i id="header-icon" class="fa-solid fa-calculator text-xl"></i>
@@ -446,7 +443,7 @@
                 <!-- (v11) AI Proxy Settings -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-slate-800">AI Proxy Settings (v14)</h3>
+                        <h3 class="text-lg font-bold text-slate-800">AI Proxy Settings (v15)</h3>
                         <i class="fa-solid fa-server text-2xl text-ai-500"></i>
                     </div>
                     <p class="text-sm text-slate-600 p-3 bg-blue-50 rounded-lg border border-blue-200">
@@ -572,7 +569,8 @@
         const LOCAL_STORAGE_KEY = 'service_year_data_v14'; // (v14)
         const GAS_URL_KEY = 'service_year_gas_url_v14'; // (v14)
         
-        const AI_PROXY_URL = "https://script.google.com/macros/s/AKfycbyGzNyiu6bHyb5BU8ay8Myt6bnPFldJgo_WIcm7WUVLyDa-BGn9oKkFbb8scMbzJy7W/exec";
+        // (v11) ฝัง AI PROXY URL ที่นี่
+        const AI_PROXY_URL = "https://script.google.com/macros/s/AKfycbyIINKHZlCXae04qg3_YNQWMtRBa576TUAeI7YtlcO8b7aUeYLT6vSNN-p2xIfK0lfj/exec";
 
         const THAI_MONTHS = [
             "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", 
@@ -584,7 +582,7 @@
             savedCalculations: [],
             currentView: 'view-saved',
             currentModalData: null, 
-            // (v14) สถานะความถูกต้องของฟอร์ม
+            // (v15) สถานะความถูกต้องของฟอร์ม (เพิ่ม birthDate)
             formState: {
                 name: false,
                 startDate: false,
@@ -777,7 +775,7 @@
         // --- (v14) SMART DATE (AI PROXY) ---
         
         /**
-         * (v14) อัปเดต handleSmartDateInput (AI Proxy)
+         * (v15) อัปเดต handleSmartDateInput (AI Proxy)
          */
         async function handleSmartDateInput(smartInput, spinnerEl, isoHiddenInput, stateKey) {
             const text = smartInput.value.trim();
@@ -849,10 +847,6 @@
         }
 
         // --- CORE CALCULATION LOGIC ---
-        // (v14) ลบ ymdToDays, daysToYmd เพราะย้ายไป AI Proxy
-        // (v14) อัปเดต: ไม่ได้ย้ายไป AI Proxy แต่ย้ายไป AI Analysis
-        // (v14) อัปเดต 2: ตรรกะ ymdToDays/daysToYmd ยังต้องใช้สำหรับ *การคำนวณ* (ไม่ใช่การ Parse)
-        // ดังนั้น นำกลับมา
         
         function calculateDifference(d1, d2) {
             if (!d1 || !d2 || d2 < d1) return { y: 0, m: 0, d: 0 };
@@ -868,14 +862,11 @@
             return { y, m, d };
         }
         
-        // (v14) ยังต้องใช้ฟังก์ชันนี้
         function ymdToDays(ymd) {
             if (!ymd) return 0;
-            // (v14) ทำให้ง่ายขึ้น (เพราะไม่มี leave/mult)
             return (ymd.y * DAYS_PER_YEAR) + (ymd.m * DAYS_PER_MONTH) + ymd.d;
         }
 
-        // (v14) ยังต้องใช้ฟังก์ชันนี้
         function daysToYmd(totalDays) {
             totalDays = Math.max(0, totalDays); 
             const y = Math.floor(totalDays / DAYS_PER_YEAR);
@@ -910,12 +901,12 @@
         // --- EVENT HANDLERS (CRUD) ---
 
         /**
-         * (v14) ใหม่: ตรวจสอบฟอร์มเพื่อแสดงปุ่มบันทึก
+         * (v15) ใหม่: ตรวจสอบฟอร์มเพื่อแสดงปุ่มบันทึก
          */
         function checkFormValidity() {
             const { name, startDate, birthDate } = state.formState;
-            // (v14) BirthDate เป็น Optional (ถ้าไม่กรอก ก็ไม่แสดงผลเกษียณ)
-            if (name && startDate) {
+            // (v15) บังคับกรอก 3 ช่อง
+            if (name && startDate && birthDate) {
                 dom.btnCalcSave.classList.remove('hidden');
             } else {
                 dom.btnCalcSave.classList.add('hidden');
@@ -923,10 +914,9 @@
         }
         
         /**
-         * (v14) อัปเดต handleCreateNew
+         * (v15) อัปเดต handleCreateNew
          */
         function handleCreateNew() {
-            // (v14) ลบ .reset() เพราะเราจะเคลียร์เอง
             dom.formId.value = '';
             dom.formName.value = '';
             
@@ -935,11 +925,11 @@
             dom.formStartISO.value = '';
             dom.formBirthISO.value = '';
             
-            // (v14) รีเซ็ต state
+            // (v15) รีเซ็ต state
             state.formState.name = false;
             state.formState.startDate = false;
             state.formState.birthDate = false;
-            checkFormValidity(); // (v14) ซ่อนปุ่ม
+            checkFormValidity(); // (v15) ซ่อนปุ่ม
 
             dom.formTitle.textContent = "เพิ่มรายการใหม่";
             dom.btnCalcSave.textContent = "คำนวณและบันทึก";
@@ -947,13 +937,10 @@
         }
 
         /**
-         * (v14) อัปเดต handleSave
-         * @param {Event | null} event - (v14) อาจเป็น null
-         * @param {boolean} [shouldSwitchView=true] - (v14) พารามิเตอร์ใหม่
-         * @returns {string | null} - ID ของรายการที่บันทึก
+         * (v15) อัปเดต handleSave
          */
         function handleSave(event, shouldSwitchView = true) {
-            if(event) event.preventDefault(); // (v14) ป้องกัน submit ถ้าเรียกจาก form (ซึ่งตอนนี้ไม่)
+            if(event) event.preventDefault(); 
             
             const id = dom.formId.value || `calc_${Date.now()}`;
             const name = dom.formName.value;
@@ -961,8 +948,9 @@
             const startDateISO = dom.formStartISO.value || null;
             const birthDateISO = dom.formBirthISO.value || null;
 
-            if (!name || !startDateISO) {
-                showToast('ข้อมูลไม่ครบ (ชื่อ หรือ วันที่บรรจุ)', 'error');
+            // (v15) ตรวจสอบ 3 ช่อง
+            if (!name || !startDateISO || !birthDateISO) {
+                showToast('ข้อมูลไม่ครบ (ชื่อ, วันที่บรรจุ, หรือ วันเกิด)', 'error');
                 return null;
             }
 
@@ -971,7 +959,6 @@
                 name: name,
                 startDate: startDateISO, 
                 birthDate: birthDateISO, 
-                // (v14) ลบ leave และ mult
             };
             
             const isEditing = !!dom.formId.value;
@@ -1015,7 +1002,7 @@
         }
 
         /**
-         * (v14) อัปเดต handleEdit
+         * (v15) อัปเดต handleEdit
          */
         function handleEdit(id) {
             const item = state.savedCalculations.find(i => i.id === id);
@@ -1030,14 +1017,12 @@
             dom.formStartSmart.value = formatISODateForDisplay(item.startDate);
             dom.formBirthSmart.value = formatISODateForDisplay(item.birthDate);
             
-            // (v14) ลบ leave/mult
-            
-            // (v14) ตั้งค่า state สำหรับปุ่ม
+            // (v15) ตั้งค่า state สำหรับปุ่ม
             state.formState.name = true;
             state.formState.startDate = !!item.startDate;
             state.formState.birthDate = !!item.birthDate;
-            checkFormValidity(); // (v14) แสดงปุ่ม
-            
+            checkFormValidity(); // (v15) แสดงปุ่ม
+
             dom.formTitle.textContent = "แก้ไขรายการ";
             dom.btnCalcSave.textContent = "อัปเดตและคำนวณ";
             
