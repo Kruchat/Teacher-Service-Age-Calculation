@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#ffffff">
 
-    <title>แอปคำนวณอายุราชการ (v8 - Smart Date)</title>
+    <title>แอปคำนวณอายุราชการ (v13 - AI Analysis)</title>
     
     <!-- (Scripts and Fonts) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,20 +27,24 @@
                         ai: { 500: '#8b5cf6', 600: '#7c3aed' },
                         google: { 500: '#fbbc05', 600: '#ea4335' },
                         danger: { 500: '#ef4444', 600: '#dc2626' },
-                        // (v4) สีสำหรับ Result Blocks
-                        year: { 500: '#0ea5e9', 100: '#f0f9ff' }, // brand
-                        month: { 500: '#10b981', 100: '#f0fdf4' }, // accent
-                        day: { 500: '#f59e0b', 100: '#fffbeb' } // amber
+                        year: { 500: '#0ea5e9', 100: '#f0f9ff' }, 
+                        month: { 500: '#10b981', 100: '#f0fdf4' }, 
+                        day: { 500: '#f59e0b', 100: '#fffbeb' } 
                     },
                     animation: {
                         'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
                         'scale-in': 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                        'fade-in': 'fadeIn 0.3s ease-out'
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'spin': 'spin 1s linear infinite', // (v10) for AI Spinner
                     },
                     keyframes: {
                         slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
                         scaleIn: { '0%': { transform: 'scale(0.9)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } },
-                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } }
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        spin: { // (v10)
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' },
+                        },
                     }
                 }
             }
@@ -80,31 +84,48 @@
             display: flex; flex-direction: column; align-items: center; gap: 2px;
         }
         .nav-item.active { color: #0284c7; /* brand-600 */ background-color: #f0f9ff; /* sky-50 */ }
-        #nav-calc.active { color: #059669; background-color: #f0fdf4; } /* (v6) เปลี่ยนสีแท็บเพิ่ม/แก้ไข */
+        #nav-calc.active { color: #059669; background-color: #f0fdf4; } 
         .nav-item i { font-size: 16px; line-height: 1; }
 
         /* (Form Styles) */
         .form-label { display: block; text-transform: uppercase; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px; letter-spacing: 0.5px; }
         .form-input, .form-textarea, .form-select { 
-            /* (v7) ใช้ form-input กับ <select> ด้วย */
             width: 100%; background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 14px; font-size: 14px; color: #1e293b; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02); 
-            /* (v7) เพิ่มสำหรับ <select> */
             appearance: none;
+            background-image: none;
+            padding-right: 14px;
+        }
+        .form-select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
             background-position: right 0.7rem center;
             background-repeat: no-repeat;
             background-size: 1.25em 1.25em;
             padding-right: 2.5rem;
         }
+        
         .form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: #0ea5e9; box-shadow: 0 0 0 3px #bfdbfe; }
+        
         .form-input[type="number"] { text-align: center; }
-        /* (v8) Smart input ไม่มี icon */
-        .form-input.smart-date {
-            background-image: none;
-            padding-right: 14px;
-        }
         .form-input::placeholder { color: #94a3b8; }
         
+        .smart-date-wrapper {
+            position: relative;
+        }
+        .smart-date-spinner {
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            width: 20px;
+            height: 20px;
+            color: #64748b; 
+        }
+        .smart-date-spinner.hidden {
+            display: none;
+        }
+        .smart-date-spinner i {
+            animation: spin 1s linear infinite;
+        }
+
         .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px; border-radius: 14px; font-size: 14px; font-weight: 600; transition: all 0.2s; cursor: pointer; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .btn-primary { background-color: #0ea5e9; color: white; }
         .btn-primary:hover { background-color: #0284c7; }
@@ -113,8 +134,18 @@
         .btn-danger { background-color: #ef4444; color: white; }
         .btn-danger:hover { background-color: #dc2626; }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        /* (v13) AI Button Style */
+        .btn-ai {
+            background-color: #f5f3ff; /* ai-50 */
+            color: #7c3aed; /* ai-600 */
+            border: 1px solid #ede9fe; /* ai-100 */
+            box-shadow: none;
+        }
+        .btn-ai:hover {
+            background-color: #ede9fe; /* ai-100 */
+        }
 
-        /* (Modal Styles - v4) */
+        /* (Modal Styles) */
         .modal-backdrop {
             position: fixed; inset: 0; z-index: 1000;
             background-color: rgba(0, 0, 0, 0.6);
@@ -127,12 +158,10 @@
             background-color: #f8fafc;
             border-top-left-radius: 24px;
             border-top-right-radius: 24px;
-            /* (v8) padding: 0; ให้ Card จัดการเอง */
             padding: 0;
             animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             max-height: 85vh;
             overflow-y: auto;
-            /* (v8) เพิ่ม overflow: hidden สำหรับการ bo */
             overflow: hidden;
         }
         .modal-close-btn {
@@ -141,7 +170,6 @@
             background-color: #e2e8f0; color: #64748b;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
-            /* (v8) z-index 1002 ให้อยู่เหนือเนื้อหา */
             z-index: 1002;
         }
         @media (min-width: 768px) {
@@ -157,7 +185,7 @@
         /* (Result Display Styles - v8) */
         .result-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 20px; /* (v8) p-small */
+            padding: 10px 20px; 
             border-bottom: 1px solid #f1f5f9;
             background-color: white;
         }
@@ -165,9 +193,8 @@
         .result-label { font-weight: 500; color: #334155; }
         .result-value { font-weight: 600; font-size: 1rem; color: #0284c7; }
         
-        /* (v8) Result Details <details> */
         .result-details {
-            background-color: #f8fafc; /* slate-50 */
+            background-color: #f8fafc; 
             border-top: 1px solid #f1f5f9;
         }
         .result-details summary {
@@ -179,11 +206,11 @@
             align-items: center;
             font-size: 0.9rem;
             font-weight: 600;
-            color: #475569; /* slate-600 */
+            color: #475569; 
         }
         .result-details summary::-webkit-details-marker { display: none; }
         .result-details summary::after {
-            content: '\f078'; /* Chevron Down */
+            content: '\f078'; 
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             font-size: 0.7rem;
@@ -193,11 +220,35 @@
             transform: rotate(180deg);
         }
         .result-details-content {
-            padding: 0; /* .result-row มี padding อยู่แล้ว */
+            padding: 0; 
             border-top: 1px solid #f1f5f9;
         }
+        
+        /* (v13) AI Analysis Result Box */
+        #ai-analysis-container {
+            padding: 16px 20px;
+            background-color: #f5f3ff; /* ai-50 */
+            border-top: 1px solid #ede9fe; /* ai-100 */
+            border-bottom: 1px solid #ede9fe;
+        }
+        #ai-analysis-container p {
+            font-size: 0.9rem;
+            color: #5b21b6; /* ai-700 */
+            line-height: 1.6;
+        }
+        #ai-analysis-container .ai-spinner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #7c3aed; /* ai-600 */
+        }
+        #ai-analysis-container .ai-spinner i {
+            animation: spin 1s linear infinite;
+        }
 
-        /* (Saved List Item Card - v4) */
+        /* (Saved List Item Card) */
         .saved-item-card {
             display: flex;
             align-items: center;
@@ -205,15 +256,15 @@
             background-color: white;
             padding: 16px;
             border-radius: 16px;
-            border: 1px solid #e2e8f0; /* slate-200 */
+            border: 1px solid #e2e8f0; 
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
             animation: fadeIn 0.3s ease-out;
         }
         .saved-item-icon {
             width: 44px; height: 44px;
             border-radius: 99px;
-            background-color: #f0f9ff; /* sky-50 */
-            color: #0284c7; /* brand-600 */
+            background-color: #f0f9ff; 
+            color: #0284c7; 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -224,12 +275,12 @@
         .saved-item-content h4 {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #1e293b; /* slate-800 */
+            color: #1e293b; 
             truncate: true;
         }
         .saved-item-content p {
             font-size: 0.9rem;
-            color: #475569; /* slate-600 */
+            color: #475569; 
         }
         .saved-item-actions { display: flex; gap: 8px; }
         .saved-item-btn {
@@ -238,8 +289,8 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #64748b; /* slate-500 */
-            background-color: #f1f5f9; /* slate-100 */
+            color: #64748b; 
+            background-color: #f1f5f9; 
             transition: all 0.2s;
         }
         .saved-item-btn:hover { background-color: #e2e8f0; }
@@ -252,17 +303,17 @@
         .instructions-box summary { font-weight: 600; cursor: pointer; }
 
         /* (v6) <details> and <summary> Styles */
-        details.form-details { /* (v8) ตั้งชื่อ class ให้ชัดเจน */
+        details.form-details { 
             background-color: white;
             border-radius: 16px; 
-            border: 1px solid #e2e8f0; /* slate-200 */
+            border: 1px solid #e2e8f0; 
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
             overflow: hidden; 
         }
         details[open].form-details {
             box-shadow: 0 4px 10px -1px rgba(0,0,0,0.05);
         }
-        summary.form-summary { /* (v8) ตั้งชื่อ class ให้ชัดเจน */
+        summary.form-summary { 
             padding: 20px; 
             cursor: pointer;
             list-style: none; 
@@ -276,13 +327,12 @@
         summary.form-summary::-webkit-details-marker {
             display: none; 
         }
-        /* (v6) Custom Marker (Chevron) */
         summary.form-summary::after {
-            content: '\f078'; /* Font Awesome Chevron Down */
+            content: '\f078'; 
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             font-size: 0.8rem;
-            color: #64748b; /* slate-500 */
+            color: #64748b; 
             transition: transform 0.2s ease-in-out;
         }
         details[open] > summary.form-summary {
@@ -291,9 +341,8 @@
         details[open] > summary.form-summary::after {
             transform: rotate(180deg);
         }
-        /* (v6) ส่วนเนื้อหาของ <details> */
         .details-content {
-            padding: 20px; /* (v6) p-5 */
+            padding: 20px;
         }
 
     </style>
@@ -309,7 +358,7 @@
     <!-- (File Inputs) -->
     <input type="file" id="import-file-input" class="hidden" accept=".json, .txt" onchange="window.handleFileImport(event)">
 
-    <!-- (v8) Result Modal Redesign -->
+    <!-- (v13) Result Modal (เพิ่ม AI Button) -->
     <div id="result-modal-container" class="hidden">
         <div class="modal-backdrop" onclick="window.hideResultModal()"></div>
         <div class="modal-container">
@@ -358,7 +407,19 @@
                     </div>
                 </details>
             </div>
-            <!-- (v8) เพิ่ม Padding ด้านล่างสำหรับ Safe Area -->
+            
+            <!-- (v13) AI Analysis Section -->
+            <div id="ai-analysis-container" class="hidden">
+                <!-- AI content or spinner goes here -->
+            </div>
+            
+            <div class="p-4 pt-2">
+                <button id="btn-ai-analyze" onclick="window.handleAiAnalysis()" class="btn btn-ai w-full">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>
+                    AI วิเคราะห์ผล
+                </button>
+            </div>
+
             <div class="pb-safe-bottom" style="padding-bottom: env(safe-area-inset-bottom, 1rem)"></div>
         </div>
     </div>
@@ -370,9 +431,8 @@
         <header class="px-6 py-4 flex justify-between items-center sticky top-0 shadow-sm bg-white/80 z-40 backdrop-filter: blur(12px) border-b border-slate-100/80">
             <div class="flex flex-col">
                 <h1 class="text-xl font-bold text-brand-600">คำนวณอายุราชการ</h1>
-                <p id="header-subtitle" class="text-sm text-slate-500">v8 - Smart Date</p>
+                <p id="header-subtitle" class="text-sm text-slate-500">v13 - AI Analysis</p>
             </div>
-            <!-- (v6) ซ่อน/แสดง ไอคอน โดย JS -->
             <div id="header-icon-container" class="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 border-4 border-white shadow-md">
                 <i id="header-icon" class="fa-solid fa-calculator text-xl"></i>
             </div>
@@ -380,7 +440,7 @@
 
         <div id="content-area" class="flex-1 overflow-y-auto no-scrollbar pb-6">
             
-            <!-- (View 1: Saved List - v4) -->
+            <!-- (View 1: Saved List) -->
             <section id="view-saved" class="p-6 space-y-4">
                 <div class="relative">
                     <input type="text" id="input-search" oninput="window.renderSavedList()" class="form-input pl-10" placeholder="ค้นหาชื่อ...">
@@ -391,19 +451,19 @@
                 </div>
             </section>
             
-            <!-- (View 2: Calculator / Edit Form - v8) -->
+            <!-- (View 2: Calculator / Edit Form - v12) -->
             <section id="view-calc" class="hidden p-6 space-y-4">
                 
                 <form id="calc-form" onsubmit="window.handleSave(event); return false;" class="space-y-4">
                     
                     <input type="hidden" id="form-id">
+                    <input type="hidden" id="form-start-iso">
+                    <input type="hidden" id="form-birth-iso">
                     
-                    <!-- (v6) ข้อมูลหลัก -->
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                         <h3 id="form-title" class="text-lg font-bold text-slate-800 mb-4">เพิ่มรายการใหม่</h3>
                         <div class="space-y-4">
                             <div>
-                                <!-- (v6) Added icon -->
                                 <label for="form-name" class="form-label flex items-center gap-2">
                                     <i class="fa-solid fa-user fa-fw text-slate-400"></i>
                                     <span>ชื่อ-สกุล (สำหรับบันทึก)</span>
@@ -411,44 +471,40 @@
                                 <input type="text" id="form-name" class="form-input" placeholder="เช่น นายสมชาย ใจดี" required>
                             </div>
                             
-                            <!-- (v8) Smart Date Hybrid Input -->
+                            <!-- (v12) AI-First Input -->
                             <div>
                                 <label for="form-start-smart" class="form-label flex items-center gap-2">
                                     <i class="fa-solid fa-calendar-check fa-fw text-slate-400"></i>
                                     <span>วันที่บรรจุ</span>
                                 </label>
-                                <!-- (v8) Smart Input -->
-                                <input type="text" id="form-start-smart" class="form-input smart-date mb-2" placeholder="พิมพ์วันที่ (เช่น 15/5/2530 หรือ 15 พ.ค. 1991)">
-                                <!-- (v7) Fallback Pickers -->
-                                <div class="grid grid-cols-3 gap-2">
-                                    <select id="form-start-day" class="form-select"></select>
-                                    <select id="form-start-month" class="form-select"></select>
-                                    <select id="form-start-year" class="form-select"></select>
+                                <div class="smart-date-wrapper">
+                                    <input type="text" id="form-start-smart" class="form-input smart-date" placeholder="พิมพ์วันที่ (เช่น 10 กค 34 หรือ 15/5/1991)">
+                                    <span id="form-start-spinner" class="smart-date-spinner hidden">
+                                        <i class="fa-solid fa-spinner"></i>
+                                    </span>
                                 </div>
                             </div>
                             
-                            <!-- (v8) Smart Date Hybrid Input -->
+                            <!-- (v12) AI-First Input -->
                             <div>
                                 <label for="form-birth-smart" class="form-label flex items-center gap-2">
                                     <i class="fa-solid fa-cake-candles fa-fw text-slate-400"></i>
                                     <span>วันเกิด (สำหรับคำนวณเกษียณ)</span>
                                 </label>
-                                <!-- (v8) Smart Input -->
-                                <input type="text" id="form-birth-smart" class="form-input smart-date mb-2" placeholder="พิมพ์วันที่...">
-                                <!-- (v7) Fallback Pickers -->
-                                <div class="grid grid-cols-3 gap-2">
-                                    <select id="form-birth-day" class="form-select"></select>
-                                    <select id="form-birth-month" class="form-select"></select>
-                                    <select id="form-birth-year" class="form-select"></select>
+                                <div class="smart-date-wrapper">
+                                    <input type="text" id="form-birth-smart" class="form-input smart-date" placeholder="พิมพ์วันที่...">
+                                    <span id="form-birth-spinner" class="smart-date-spinner hidden">
+                                        <i class="fa-solid fa-spinner"></i>
+                                    </span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- (v6) หักวันลา (Converted to <details>) -->
+                    <!-- (v6) หักวันลา -->
                     <details class="form-details">
                         <summary class="form-summary">
-                            <span class="flex items-center gap-3"> <!-- (v6) เพิ่ม gap -->
+                            <span class="flex items-center gap-3">
                                 <i class="fa-solid fa-calendar-minus fa-fw text-danger-500"></i>
                                 <span>หักวันลา (ที่ไม่นับอายุ)</span>
                             </span>
@@ -469,10 +525,10 @@
                         </div>
                     </details>
                     
-                    <!-- (v6) เพิ่มวันทวีคูณ (Converted to <details>) -->
+                    <!-- (v6) เพิ่มวันทวีคูณ -->
                     <details class="form-details">
                         <summary class="form-summary">
-                            <span class="flex items-center gap-3"> <!-- (v6) เพิ่ม gap -->
+                            <span class="flex items-center gap-3">
                                 <i class="fa-solid fa-calendar-plus fa-fw text-accent-500"></i>
                                 <span>เพิ่มวันทวีคูณ</span>
                             </span>
@@ -493,7 +549,6 @@
                         </div>
                     </details>
 
-                    <!-- (v6) Buttons - ใช้สีเขียวให้สอดคล้องกับแท็บ -->
                     <div class="grid grid-cols-1 gap-3 pt-2">
                         <button id="btn-save-result" type="submit" class="btn bg-accent-600 hover:bg-accent-500 text-white">
                             <i class="fa-solid fa-save mr-2"></i> บันทึก
@@ -502,42 +557,39 @@
                 </form>
             </section>
             
-            <!-- (View 3: Manage / Settings) -->
+            <!-- (View 3: Manage / Settings - v11) -->
             <section id="view-manage" class="hidden p-6 space-y-6">
                 
+                <!-- (v11) AI Proxy Settings - ลบช่องกรอกออก -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-slate-800">AI Proxy Settings (v13)</h3>
+                        <i class="fa-solid fa-server text-2xl text-ai-500"></i>
+                    </div>
+                    <p class="text-sm text-slate-600 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <i class="fa-solid fa-check-circle mr-1 text-blue-600"></i>
+                        AI Proxy URL ถูกฝังในโค้ด (Hardcoded) แล้ว
+                    </p>
+                    <p class="text-xs text-slate-500 mt-3">
+                        หากต้องการเปลี่ยน URL, กรุณาแก้ไขไฟล์ `.html` โดยตรง
+                    </p>
+                </div>
+
                 <!-- Google Sheet Sync -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-slate-800">Google Sheet Sync</h3>
+                        <h3 class="text-lg font-bold text-slate-800">Data Sync Settings</h3>
                         <i class="fa-brands fa-google-drive text-2xl text-google-500"></i>
                     </div>
                     <div>
-                        <label for="input-apps-script-url" class="form-label">Google Apps Script URL</label>
+                        <label for="input-apps-script-url" class="form-label">Google Apps Script URL (Data Sync)</label>
                         <input type="url" id="input-apps-script-url" class="form-input" placeholder="https://script.google.com/macros/s/..." oninput="window.saveAppsScriptUrl(this.value)">
                     </div>
-                    <p class="text-sm text-slate-600 mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-                        <i class="fa-solid fa-circle-info mr-1 text-green-600"></i>
-                        ระบบจะ Sync อัตโนมัติเมื่อมีการบันทึก, แก้ไข, หรือลบข้อมูล
-                    </p>
-
+                    
                     <!-- (Code.gs) -->
                     <details class="mt-4">
-                        <summary class="instructions-box summary">
-                            <i class="fa-solid fa-info-circle"></i> วิธีรับ URL (คลิกเพื่ออ่าน)
-                        </summary>
-                        <div class="instructions-box mt-2 space-y-2">
-                            <ol class="space-y-1 list-decimal list-inside">
-                                <li>ไปที่ <code>sheets.new</code> &gt; <code>ส่วนขยาย &gt; Apps Script</code></li>
-                                <li>วางโค้ด (v2) จากช่องถัดไป</li>
-                                <li><code>Deploy &gt; New deployment &gt; Web app</code></li>
-                                <li>ตั้งค่า "Who has access" เป็น <code>Anyone</code></li>
-                                <li>กด Deploy, อนุญาตสิทธิ์, และคัดลอก URL มาวาง</li>
-                            </ol>
-                        </div>
-                    </details>
-                    <details class="mt-2">
                          <summary class="instructions-box summary">
-                            <i class="fa-solid fa-code"></i> โค้ดสำหรับ Apps Script (Code.gs) (v2 - Dynamic)
+                            <i class="fa-solid fa-code"></i> โค้ดสำหรับ Data Sync (Code.gs)
                         </summary>
                         <div class="instructions-box mt-2">
                             <pre class="overflow-x-auto p-2 bg-slate-700 text-white rounded-md text-xs"><code>function doPost(e) {
@@ -560,7 +612,6 @@
     var headers = Object.keys(data[0]);
     var values = data.map(function(row) {
       return headers.map(function(header) {
-        // (v4 Update) แปลง Object {y,m,d} ให้เป็น String
         if (typeof row[header] === 'object' && row[header] !== null) {
           if (row[header].y !== undefined) {
             return `${row[header].y} ปี ${row[header].m} เดือน ${row[header].d} วัน`;
@@ -638,59 +689,45 @@
         
         // --- CONSTANTS ---
         const DAYS_PER_MONTH = 30;
-        const DAYS_PER_YEAR = 365; // ใช้ 365 ตามหลักเกณฑ์ทั่วไป (ไม่ใช่ 365.25)
-        const LOCAL_STORAGE_KEY = 'service_year_data_v4'; // (v4)
-        const GAS_URL_KEY = 'service_year_gas_url_v4'; // (v4)
-        // (v7)
-        const THAI_MONTHS = [
-            "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", 
-            "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-        ];
-        // (v8) เพิ่ม Map สำหรับ Smart Parse
-        const THAI_MONTH_MAP = {
-            'มค': 0, 'ม.ค.': 0, 'มกราคม': 0,
-            'กพ': 1, 'ก.พ.': 1, 'กุมภาพันธ์': 1,
-            'มีค': 2, 'มี.ค.': 2, 'มีนาคม': 2,
-            'เมย': 3, 'เม.ย.': 3, 'เมษายน': 3,
-            'พค': 4, 'พ.ค.': 4, 'พฤษภาคม': 4,
-            'มิย': 5, 'มิ.ย.': 5, 'มิถุนายน': 5,
-            'กค': 6, 'ก.ค.': 6, 'กรกฎาคม': 6,
-            'สค': 7, 'ส.ค.': 7, 'สิงหาคม': 7,
-            'กย': 8, 'ก.ย.': 8, 'กันยายน': 8,
-            'ตค': 9, 'ต.ค.': 9, 'ตุลาคม': 9,
-            'พย': 10, 'พ.ย.': 10, 'พฤศจิกายน': 10,
-            'ธค': 11, 'ธ.ค.': 11, 'ธันวาคม': 11
-        };
-        const START_YEAR_BE = 2480; // (v7) ปี พ.ศ. เริ่มต้น
-        const END_YEAR_BE = new Date().getFullYear() + 543 + 1; // (v7) ปี พ.ศ. สิ้นสุด
+        const DAYS_PER_YEAR = 365;
+        const LOCAL_STORAGE_KEY = 'service_year_data_v4';
+        const GAS_URL_KEY = 'service_year_gas_url_v4';
+        
+        // (v11) ฝัง AI PROXY URL ที่นี่
+        const AI_PROXY_URL = "https://script.google.com/macros/s/AKfycbwuibJtnxxAOC9ihAYuyaDDeZ2s1XmRGufRfXblgEyzPRTiXBTjQJghERTdshlHDd35/exec";
 
+        const THAI_MONTHS = [
+            "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", 
+            "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
+        ];
+        
         // --- STATE & DOM ---
         let state = {
             savedCalculations: [],
-            currentView: 'view-saved' // (v4) เริ่มที่หน้ารายการ
+            currentView: 'view-saved',
+            currentModalData: null, // (v13)
         };
         
         const dom = {
             views: { 
                 saved: document.getElementById('view-saved'), 
-                calc: document.getElementById('view-calc'), // (v4)
+                calc: document.getElementById('view-calc'), 
                 manage: document.getElementById('view-manage') 
             },
             nav: { 
                 saved: document.getElementById('nav-saved'), 
-                calc: document.getElementById('nav-calc'), // (v4)
+                calc: document.getElementById('nav-calc'), 
                 manage: document.getElementById('nav-manage') 
             },
             headerSubtitle: document.getElementById('header-subtitle'),
             headerIcon: document.getElementById('header-icon'),
-            headerIconContainer: document.getElementById('header-icon-container'), // (v6)
+            headerIconContainer: document.getElementById('header-icon-container'),
             
             // View Calc (Form)
             calcForm: document.getElementById('calc-form'),
-            formTitle: document.getElementById('form-title'), // (v4)
-            formId: document.getElementById('form-id'), // (v4)
+            formTitle: document.getElementById('form-title'),
+            formId: document.getElementById('form-id'),
             formName: document.getElementById('form-name'),
-            // (v7) Removed formStartDate, formBirthDate
             formLeaveY: document.getElementById('form-leave-y'),
             formLeaveM: document.getElementById('form-leave-m'),
             formLeaveD: document.getElementById('form-leave-d'),
@@ -699,15 +736,13 @@
             formMultD: document.getElementById('form-mult-d'),
             btnSaveResult: document.getElementById('btn-save-result'),
             
-            // (v8) Smart Date Pickers
+            // (v12) AI-First Date Pickers
             formStartSmart: document.getElementById('form-start-smart'),
-            formStartDay: document.getElementById('form-start-day'),
-            formStartMonth: document.getElementById('form-start-month'),
-            formStartYear: document.getElementById('form-start-year'),
+            formStartSpinner: document.getElementById('form-start-spinner'), 
+            formStartISO: document.getElementById('form-start-iso'), 
             formBirthSmart: document.getElementById('form-birth-smart'),
-            formBirthDay: document.getElementById('form-birth-day'),
-            formBirthMonth: document.getElementById('form-birth-month'),
-            formBirthYear: document.getElementById('form-birth-year'),
+            formBirthSpinner: document.getElementById('form-birth-spinner'), 
+            formBirthISO: document.getElementById('form-birth-iso'), 
 
             // View Saved
             inputSearch: document.getElementById('input-search'),
@@ -718,7 +753,7 @@
             importFileInput: document.getElementById('import-file-input'),
             inputDataJson: document.getElementById('input-data-json'),
             
-            // Result Modal (v8)
+            // Result Modal (v13)
             resultModalContainer: document.getElementById('result-modal-container'),
             resultModalTitle: document.getElementById('result-modal-title'),
             retirementCard: document.getElementById('retirement-card'),
@@ -734,6 +769,8 @@
             resultRowMult: document.getElementById('result-row-mult'), 
             resultMult: document.getElementById('result-mult'),
             resultTotalDays: document.getElementById('result-total-days'), 
+            btnAiAnalyze: document.getElementById('btn-ai-analyze'), // (v13)
+            aiAnalysisContainer: document.getElementById('ai-analysis-container'), // (v13)
 
             // Toast
             toast: document.getElementById('toast'),
@@ -743,14 +780,12 @@
 
         // --- INITIALIZATION ---
         function initApp() {
-            populateDatePickers(); // (v7)
             loadCalculations();
-            loadAppsScriptUrl(); 
-            switchView('view-saved'); // (v4) เริ่มที่หน้ารายการ
+            loadAppsScriptUrl();
+            switchView('view-saved');
             
-            // (v8) Add listeners for smart inputs
-            dom.formStartSmart.addEventListener('blur', (e) => handleSmartDateInput(e.target, dom.formStartDay, dom.formStartMonth, dom.formStartYear));
-            dom.formBirthSmart.addEventListener('blur', (e) => handleSmartDateInput(e.target, dom.formBirthDay, dom.formBirthMonth, dom.formBirthYear));
+            dom.formStartSmart.addEventListener('blur', (e) => handleSmartDateInput(e.target, dom.formStartSpinner, dom.formStartISO));
+            dom.formBirthSmart.addEventListener('blur', (e) => handleSmartDateInput(e.target, dom.formBirthSpinner, dom.formBirthISO));
         }
 
         // --- NAVIGATION & UTILS ---
@@ -765,11 +800,9 @@
             Object.values(dom.nav).forEach(el => el.classList.remove('active'));
             if (dom.nav[viewId]) dom.nav[viewId].classList.add('active');
             
-            // (v4) ถ้ามาหน้า Calc ให้ Reset Form (สำหรับ 'เพิ่มใหม่')
             if (id === 'view-calc' && !dom.formId.value) {
                 handleCreateNew();
             }
-            // (v4) ถ้าออกจากหน้า Calc ให้เคลียร์ ID (ป้องกันการแก้ไขค้าง)
             if (id !== 'view-calc') {
                 dom.formId.value = '';
             }
@@ -783,32 +816,27 @@
             }
         }
 
-        /**
-         * (v6) อัปเดต Header: ซ่อนไอคอนในหน้า Calc
-         */
         function updateHeader(id) {
             let subtitle = "รายการที่บันทึกไว้";
             let iconClass = "fa-solid fa-list-check";
             
-            // (v6) ซ่อนไอคอนโดย Default, แสดงในบางแท็บ
             dom.headerIconContainer.classList.add('hidden');
 
             switch(id) {
                 case 'view-calc':
                     subtitle = dom.formId.value ? "แก้ไขรายการ" : "เพิ่มรายการใหม่";
                     iconClass = dom.formId.value ? "fa-solid fa-pencil" : "fa-solid fa-plus-circle";
-                    // (v6) ซ่อนไอคอนในหน้านี้
                     break;
                 case 'view-manage':
                     subtitle = "ตั้งค่า & จัดการข้อมูล";
                     iconClass = "fa-solid fa-sliders";
-                    dom.headerIconContainer.classList.remove('hidden'); // แสดงไอคอน
+                    dom.headerIconContainer.classList.remove('hidden'); 
                     break;
                 case 'view-saved':
                 default:
                     subtitle = "รายการที่บันทึกไว้";
                     iconClass = "fa-solid fa-list-check";
-                    dom.headerIconContainer.classList.remove('hidden'); // แสดงไอคอน
+                    dom.headerIconContainer.classList.remove('hidden'); 
                     break;
             }
             
@@ -830,7 +858,6 @@
             if (data) {
                 try { 
                     state.savedCalculations = JSON.parse(data); 
-                    // (v4) đảm bảo dữ liệu mới (birthDate) tồn tại
                     state.savedCalculations.forEach(item => {
                         if (!item.birthDate) item.birthDate = null;
                         if (!item.leave) item.leave = {y:0, m:0, d:0};
@@ -853,293 +880,146 @@
             if (url) dom.inputAppsScriptUrl.value = url;
         }
         
-        // --- (v8) SMART DATE PARSER ---
         
-        /**
-         * (v8) จัดการ Smart Date Input
-         */
-        function handleSmartDateInput(smartInput, dEl, mEl, yEl) {
+        // --- (v12) SMART DATE (AI PROXY) ---
+        
+        async function handleSmartDateInput(smartInput, spinnerEl, isoHiddenInput) {
             const text = smartInput.value.trim();
-            if (!text) return;
-            
-            const isoDate = parseSmartDate(text);
-            
-            if (isoDate) {
-                setPickerFromISO(isoDate, dEl, mEl, yEl);
-                // (v8) ล้างช่องพิมพ์ออกเมื่อสำเร็จ
-                smartInput.value = ''; 
-            } else {
-                showToast(`ไม่เข้าใจรูปแบบวันที่ "${text}"`, 'error');
-            }
-        }
-        
-        /**
-         * (v9) อัปเดตฟังก์ชันหลักในการแยกแยะวันที่ (รองรับ พ.ศ./ค.ศ. 2/4 หลัก และ . )
-         */
-        function parseSmartDate(text) {
-            if (!text) return null;
-            
-            let normalized = text.toLowerCase()
-                .replace(/,/g, '')
-                .replace(/\./g, ''); // (v9) ลบจุด (เช่น ก.ค. หรือ กค.)
-
-            // 1. แปลงชื่อเดือน (ไทย) เป็นตัวเลข
-            // (v9) ใช้ THAI_MONTH_MAP (ที่ไม่มีจุด) กับ string ที่ลบจุดแล้ว
-            for (const key in THAI_MONTH_MAP) {
-                if (normalized.includes(key)) {
-                    normalized = normalized.replace(key, `/${THAI_MONTH_MAP[key] + 1}/`); // +1 เพราะ Map เป็น 0-11
-                    break;
-                }
-            }
-
-            // 2. ใช้ Regex แยก d/m/y (v9: รองรับปี 2 หรือ 4 หลัก)
-            // รองรับ d/m/y, d-m-y, d m y
-            const match = normalized.match(/(\d{1,2})[\s\/\-]+(\d{1,2})[\s\/\-]+(\d{2,4})/);
-            
-            if (!match) return null;
-            
-            const d = parseInt(match[1]);
-            const m = parseInt(match[2]);
-            let y = parseInt(match[3]); // (v9) 'let'
-
-            if (d > 31 || m > 12) return null;
-
-            let y_ce;
-            
-            // 3. (v9) ตรวจสอบ ปี พ.ศ. / ค.ศ. (รองรับ 2 หลัก)
-            if (y < 100) {
-                // (v9) ถ้าเป็น 2 หลัก (เช่น 34, 80)
-                // ตรรกะ: ถ้า (พ.ศ. 25xx) > ปีปัจจุบัน, ให้ถือเป็น 24xx
-                // เช่น ถ้าปีนี้ 2568:
-                // พิมพ์ '60' -> 2560
-                // พิมพ์ '80' -> 2480
-                const currentYearBE = new Date().getFullYear() + 543;
-                const currentShortBE = currentYearBE % 100; // เช่น 68
-                
-                if (y > currentShortBE) {
-                    // ปี 2 หลักในอดีตไกล (เช่น พิมพ์ 80 ในปี 68) -> 2480
-                    y_ce = (y + 2400) - 543; 
-                } else {
-                    // ปี 2 หลัก (เช่น 34) -> 2534
-                    y_ce = (y + 2500) - 543;
-                }
-
-            } else if (y > 2400) {
-                // (v9) 4-digit BE (พ.ศ. 2534)
-                y_ce = y - 543;
-            } else if (y > 1900 && y < 2100) {
-                // (v9) 4-digit CE (ค.ศ. 1991)
-                y_ce = y;
-            } else {
-                return null; // ปีน้อยเกินไป
-            }
-
-            // 4. สร้าง ISO String (C.E.)
-            const m_iso = m.toString().padStart(2, '0');
-            const d_iso = d.toString().padStart(2, '0');
-            
-            return `${y_ce}-${m_iso}-${d_iso}`;
-        }
-        
-        // --- (v7) DATE PICKER HELPER FUNCTIONS ---
-        
-        function populateDatePickers() {
-            const selects = [
-                { d: dom.formStartDay, m: dom.formStartMonth, y: dom.formStartYear },
-                { d: dom.formBirthDay, m: dom.formBirthMonth, y: dom.formBirthYear }
-            ];
-
-            let dayOptions = '<option value="">วันที่</option>';
-            for(let i=1; i<=31; i++) {
-                dayOptions += `<option value="${i}">${i}</option>`;
-            }
-            
-            let monthOptions = '<option value="">เดือน</option>';
-            THAI_MONTHS.forEach((month, index) => {
-                monthOptions += `<option value="${index}">${month}</option>`; // (v7) value 0-11
-            });
-            
-            let yearOptions = '<option value="">ปี พ.ศ.</option>';
-            for(let i=END_YEAR_BE; i>=START_YEAR_BE; i--) {
-                yearOptions += `<option value="${i}">${i}</option>`;
-            }
-            
-            selects.forEach(s => {
-                s.d.innerHTML = dayOptions;
-                s.m.innerHTML = monthOptions;
-                s.y.innerHTML = yearOptions;
-            });
-        }
-        
-        function convertPickerToISO(dayEl, monthEl, yearEl) {
-            const d = dayEl.value;
-            const m = monthEl.value; // (v7) 0-11
-            const yBE = yearEl.value;
-            
-            if (d === "" || m === "" || yBE === "") {
-                // (v7) ถ้ากรอกไม่ครบช่องใดช่องหนึ่ง = null
-                return null;
-            }
-            
-            const yCE = parseInt(yBE) - 543;
-            const mISO = (parseInt(m) + 1).toString().padStart(2, '0'); // (v7) +1
-            const dISO = d.toString().padStart(2, '0');
-            
-            return `${yCE}-${mISO}-${dISO}`;
-        }
-        
-        function setPickerFromISO(isoString, dayEl, monthEl, yearEl) {
-            if (!isoString) {
-                dayEl.value = "";
-                monthEl.value = "";
-                yearEl.value = "";
+            if (!text) {
+                isoHiddenInput.value = '';
                 return;
             }
             
+            const aiProxyUrl = AI_PROXY_URL; 
+            
+            if (!aiProxyUrl || aiProxyUrl.includes("!!!_PASTE_")) {
+                showToast('ยังไม่ได้ตั้งค่า AI Proxy URL (ในโค้ด v11)', 'error');
+                return;
+            }
+
+            spinnerEl.classList.remove('hidden'); 
+            smartInput.disabled = true;
+            
             try {
-                // (v7) ใช้ UTC เพื่อป้องกัน Timezone shift
+                const response = await fetch(aiProxyUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    // (v13) ส่ง action: 'parse_date'
+                    body: JSON.stringify({ action: 'parse_date', text: text })
+                });
+                
+                const result = await response.json();
+
+                if (result.status === 'success' && result.type === 'date' && result.isoDate) {
+                    isoHiddenInput.value = result.isoDate;
+                    smartInput.value = formatISODateForDisplay(result.isoDate);
+                } else if (result.status === 'success' && result.type === 'date' && !result.isoDate) {
+                    showToast(`AI ไม่เข้าใจรูปแบบวันที่: "${text}"`, 'error');
+                    isoHiddenInput.value = ''; 
+                } else {
+                    throw new Error(result.message || "AI Proxy Error (Invalid Response Type)");
+                }
+
+            } catch (error) {
+                console.error("AI Proxy Fetch Error:", error);
+                showToast(`AI Proxy ล้มเหลว: ${error.message}`, 'error');
+            } finally {
+                spinnerEl.classList.add('hidden'); 
+                smartInput.disabled = false;
+            }
+        }
+        
+        
+        // --- (v12) DATE PICKER HELPER FUNCTIONS (REMOVED/REFACTORED) ---
+        
+        function formatISODateForDisplay(isoString) {
+            if (!isoString) return "";
+            try {
                 const date = new Date(isoString + "T00:00:00Z"); 
                 const d = date.getUTCDate();
-                const m = date.getUTCMonth(); // (v7) 0-11
-                const yCE = date.getUTCFullYear();
-                const yBE = yCE + 543;
+                const m = date.getUTCMonth(); // 0-11
+                const yBE = date.getUTCFullYear() + 543;
                 
-                dayEl.value = d;
-                monthEl.value = m;
-                yearEl.value = yBE;
+                return `${d} ${THAI_MONTHS[m]} ${yBE}`; // เช่น "10 ก.ค. 2534"
             } catch (e) {
-                console.error("Failed to parse ISO string:", isoString, e);
-                dayEl.value = "";
-                monthEl.value = "";
-                yearEl.value = "";
+                return ""; 
             }
         }
 
         // --- CORE CALCULATION LOGIC ---
 
-        /**
-         * 1. คำนวณอายุราชการดิบ (Y/M/D) - ปรับปรุง v4
-         */
         function calculateDifference(d1, d2) {
             if (!d1 || !d2 || d2 < d1) return { y: 0, m: 0, d: 0 };
-
             let y = d2.getFullYear() - d1.getFullYear();
             let m = d2.getMonth() - d1.getMonth();
             let d = d2.getDate() - d1.getDate();
-
             if (d < 0) {
                 m--;
                 let daysInLastMonth = new Date(d2.getFullYear(), d2.getMonth(), 0).getDate();
                 d += daysInLastMonth;
             }
-            
-            if (m < 0) {
-                y--;
-                m += 12;
-            }
-
+            if (m < 0) { y--; m += 12; }
             return { y, m, d };
         }
-
-        /**
-         * 2. แปลง Y/M/D เป็นจำนวนวันทั้งหมด (ตามเกณฑ์ 30/365)
-         */
         function ymdToDays(ymd) {
             if (!ymd) return 0;
             return (ymd.y * DAYS_PER_YEAR) + (ymd.m * DAYS_PER_MONTH) + ymd.d;
         }
-
-        /**
-         * 3. แปลงจำนวนวันทั้งหมดกลับเป็น Y/M/D (ตามเกณฑ์ 30/365)
-         */
         function daysToYmd(totalDays) {
-            totalDays = Math.max(0, totalDays); // กันติดลบ
+            totalDays = Math.max(0, totalDays); 
             const y = Math.floor(totalDays / DAYS_PER_YEAR);
             const remainder = totalDays % DAYS_PER_YEAR;
             const m = Math.floor(remainder / DAYS_PER_MONTH);
-            const d = Math.round(remainder % DAYS_PER_MONTH); // ใช้ round กันเศษ .99
-            
-            // (v4 Fix) จัดการกรณี d = 30
+            const d = Math.round(remainder % DAYS_PER_MONTH); 
             if (d === 30) {
-                // ปัดเศษ 30 วัน = 1 เดือน
                 const newM = m + 1;
                 const newY = y + Math.floor(newM / 12);
-                return {
-                    y: newY,
-                    m: newM % 12,
-                    d: 0
-                };
+                return { y: newY, m: newM % 12, d: 0 };
             }
-
             return { y, m, d };
         }
-        
-        /**
-         * 4. Format Y/M/D เป็น String
-         */
         function formatYmd(ymd) {
             if (!ymd) return "N/A";
             return `${ymd.y} ปี ${ymd.m} เดือน ${ymd.d} วัน`;
         }
-        
-        /**
-         * 5. (v4) คำนวณวันเกษียณ (30 ก.ย. ของปีที่อายุครบ 60)
-         */
         function getRetirementDate(birthDateStr) {
             if (!birthDateStr) return null;
             try {
-                // (v7) ใช้ UTC
                 const birthDate = new Date(birthDateStr + "T00:00:00Z");
-                
                 let retirementYear = birthDate.getUTCFullYear() + 60;
-                
-                // (v7) getUTCMonth() 8 = ก.ย., 9 = ต.ค.
-                if (birthDate.getUTCMonth() >= 9) { // 9=ต.ค., 10=พ.ย., 11=ธ.ค.
+                if (birthDate.getUTCMonth() >= 9) { // 9=ต.ค.
                      retirementYear += 1;
                 }
-                
-                // (v7) 30 กันยายน (เดือน 8)
                 return new Date(Date.UTC(retirementYear, 8, 30)); 
-            } catch (e) {
-                console.error("Invalid birth date", e);
-                return null;
-            }
+            } catch (e) { return null; }
         }
 
 
-        // --- EVENT HANDLERS (v8 - CRUD) ---
+        // --- EVENT HANDLERS (CRUD) ---
 
-        /**
-         * (v8) อัปเดต handleCreateNew
-         */
         function handleCreateNew() {
             dom.calcForm.reset();
             dom.formId.value = '';
             
-            // (v8) รีเซ็ต <select> และ <input>
             dom.formStartSmart.value = '';
             dom.formBirthSmart.value = '';
-            setPickerFromISO(null, dom.formStartDay, dom.formStartMonth, dom.formStartYear);
-            setPickerFromISO(null, dom.formBirthDay, dom.formBirthMonth, dom.formBirthYear);
+            dom.formStartISO.value = '';
+            dom.formBirthISO.value = '';
             
             dom.formTitle.textContent = "เพิ่มรายการใหม่";
             dom.btnSaveResult.innerHTML = `<i class="fa-solid fa-save mr-2"></i> บันทึก`;
             updateHeader('view-calc');
         }
 
-        /**
-         * (v7) อัปเดต handleSave
-         */
         function handleSave(event) {
             event.preventDefault();
             
             const id = dom.formId.value || `calc_${Date.now()}`;
             const name = dom.formName.value;
             
-            // (v7) ดึงค่าจาก <select>
-            // (v8) Logic นี้ยังคงเดิม เพราะ Smart Input จะอัปเดต <select> ให้เอง
-            const startDateISO = convertPickerToISO(dom.formStartDay, dom.formStartMonth, dom.formStartYear);
-            const birthDateISO = convertPickerToISO(dom.formBirthDay, dom.formBirthMonth, dom.formBirthYear);
+            const startDateISO = dom.formStartISO.value || null;
+            const birthDateISO = dom.formBirthISO.value || null;
 
             if (!name) {
                 showToast('กรุณากรอกชื่อ-สกุล', 'error');
@@ -1147,15 +1027,15 @@
                 return;
             }
             if (!startDateISO) {
-                showToast('กรุณากรอก วัน/เดือน/ปี ที่บรรจุให้ครบ', 'error');
+                showToast('กรุณากรอก วันที่บรรจุ (และรอ AI ตรวจสอบ)', 'error');
                 return;
             }
 
             const record = {
                 id: id,
                 name: name,
-                startDate: startDateISO, // (v7)
-                birthDate: birthDateISO, // (v7)
+                startDate: startDateISO, 
+                birthDate: birthDateISO, 
                 leave: {
                     y: parseInt(dom.formLeaveY.value) || 0,
                     m: parseInt(dom.formLeaveM.value) || 0,
@@ -1171,12 +1051,10 @@
             const isEditing = !!dom.formId.value;
             
             if (isEditing) {
-                // Update
                 state.savedCalculations = state.savedCalculations.map(item => 
                     item.id === id ? record : item
                 );
             } else {
-                // Add new
                 state.savedCalculations.push(record);
             }
 
@@ -1185,13 +1063,10 @@
             
             showToast(isEditing ? `อัปเดต '${record.name}' สำเร็จ` : `บันทึก '${record.name}' สำเร็จ`);
             
-            dom.formId.value = ''; // เคลียร์สถานะแก้ไข
-            switchView('view-saved'); // กลับไปหน้ารายการ
+            dom.formId.value = ''; 
+            switchView('view-saved'); 
         }
 
-        /**
-         * (v8) อัปเดต handleEdit
-         */
         function handleEdit(id) {
             const item = state.savedCalculations.find(i => i.id === id);
             if (!item) return;
@@ -1199,13 +1074,11 @@
             dom.formId.value = item.id;
             dom.formName.value = item.name;
             
-            // (v8) เคลียร์ Smart Input ก่อน
-            dom.formStartSmart.value = '';
-            dom.formBirthSmart.value = '';
+            dom.formStartISO.value = item.startDate || '';
+            dom.formBirthISO.value = item.birthDate || '';
             
-            // (v7) ตั้งค่า <select>
-            setPickerFromISO(item.startDate, dom.formStartDay, dom.formStartMonth, dom.formStartYear);
-            setPickerFromISO(item.birthDate, dom.formBirthDay, dom.formBirthMonth, dom.formBirthYear);
+            dom.formStartSmart.value = formatISODateForDisplay(item.startDate);
+            dom.formBirthSmart.value = formatISODateForDisplay(item.birthDate);
 
             dom.formLeaveY.value = item.leave?.y || '';
             dom.formLeaveM.value = item.leave?.m || '';
@@ -1221,33 +1094,28 @@
         }
 
         function handleDelete(id, event) {
-            event.stopPropagation(); // (v4) หยุดไม่ให้ modal เปิด
+            event.stopPropagation();
             const item = state.savedCalculations.find(i => i.id === id);
             if (!item) return;
 
-            // (v4) ไม่ใช้ confirm() เพราะอาจถูกบล็อก (ในอนาคตควรใช้ Modal ยืนยัน)
             const confirmed = true; 
             
             if (confirmed) {
                 state.savedCalculations = state.savedCalculations.filter(i => i.id !== id);
                 saveCalculationsToStorage();
                 triggerAutoSync();
-                renderSavedList(); // Re-render
+                renderSavedList(); 
                 showToast(`ลบรายการ '${item.name}' แล้ว`, 'success');
             }
         }
 
-        /**
-         * (v5) ปรับปรุง renderSavedList ให้คำนวณสด
-         */
         function renderSavedList() {
             const searchTerm = dom.inputSearch.value.toLowerCase();
             const list = state.savedCalculations.filter(item => 
                 item.name.toLowerCase().includes(searchTerm)
             );
             
-            // (v5) วันที่ปัจจุบันสำหรับคำนวณสด
-            const d2 = new Date(); // "วันนี้"
+            const d2 = new Date(); 
             const d2_formatted = d2.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
 
             if (list.length === 0) {
@@ -1264,8 +1132,6 @@
 
             dom.savedListContainer.innerHTML = list.map(item => {
                 
-                // --- (v5) คำนวณสดใน List View ---
-                // (v8) ตรวจสอบว่ามี startDate ก่อนคำนวณ
                 if (!item.startDate) {
                     return `<!-- Invalid item: ${item.id} -->`;
                 }
@@ -1276,7 +1142,6 @@
                 const multDays = ymdToDays(item.mult || {y:0,m:0,d:0});
                 const netDays = rawDays - leaveDays + multDays;
                 const netYmd = daysToYmd(netDays);
-                // --- จบการคำนวณสด ---
 
                 return `
                 <div class="saved-item-card animate-fade-in">
@@ -1285,7 +1150,6 @@
                     </div>
                     <div class="saved-item-content cursor-pointer" onclick="window.showResultModal('${item.id}')">
                         <h4>${item.name}</h4>
-                        <!-- (v5) แสดงผลลัพธ์ที่คำนวณสด -->
                         <p class="font-semibold text-brand-600">${formatYmd(netYmd)}</p>
                         <p class="text-xs text-slate-400">คำนวณถึง: ${d2_formatted}</p>
                     </div>
@@ -1303,30 +1167,35 @@
         }
         
         /**
-         * (v8) อัปเดต showResultModal
+         * (v13) อัปเดต showResultModal
          */
         function showResultModal(id) {
             const item = state.savedCalculations.find(i => i.id === id);
             if (!item) return;
+            
+            // (v13) เคลียร์ผลวิเคราะห์เก่า
+            dom.aiAnalysisContainer.classList.add('hidden');
+            dom.aiAnalysisContainer.innerHTML = '';
 
             const d1 = new Date(item.startDate);
-            const d2 = new Date(); // วันนี้ (สำหรับคำนวณสด)
+            const d2 = new Date(); 
             
             const leaveDays = ymdToDays(item.leave);
             const multDays = ymdToDays(item.mult);
             const hasAdjustments = (leaveDays > 0 || multDays > 0);
             
-            // 1. (v8) คำนวณเกษียณ
             const retirementDateObj = getRetirementDate(item.birthDate);
+            
+            let netYmdAtRetirement = null;
+            let countdownYmd = null;
             
             dom.retirementCard.classList.add('hidden');
 
             if (retirementDateObj) {
-                // (v8) คำนวณอายุราชการสุทธิ ณ วันเกษียณ
                 const rawYmdAtRetirement = calculateDifference(d1, retirementDateObj);
                 const rawDaysAtRetirement = ymdToDays(rawYmdAtRetirement);
                 const netDaysAtRetirement = rawDaysAtRetirement - leaveDays + multDays;
-                const netYmdAtRetirement = daysToYmd(netDaysAtRetirement);
+                netYmdAtRetirement = daysToYmd(netDaysAtRetirement);
                 
                 dom.resultNetAtRetirement.textContent = formatYmd(netYmdAtRetirement);
                 
@@ -1334,8 +1203,8 @@
                     day: 'numeric', month: 'long', year: 'numeric'
                 })}`;
                 
-                if (retirementDateObj > d2) { // d2 = วันนี้
-                    const countdownYmd = calculateDifference(d2, retirementDateObj);
+                if (retirementDateObj > d2) { 
+                    countdownYmd = calculateDifference(d2, retirementDateObj);
                     dom.retirementCountdownResult.textContent = `(เหลือเวลาอีก ${formatYmd(countdownYmd)})`;
                 } else {
                     dom.retirementCountdownResult.textContent = "(เกษียณอายุแล้ว)";
@@ -1343,39 +1212,87 @@
                 dom.retirementCard.classList.remove('hidden');
             }
 
-            // 2. คำนวณอายุราชการ (ณ วันนี้)
             const rawYmd = calculateDifference(d1, d2);
             const rawDays = ymdToDays(rawYmd);
             const netDays = rawDays - leaveDays + multDays;
             const netYmd = daysToYmd(netDays);
             
-            // 3. Render Results (v8 Redesign)
             dom.resultModalTitle.textContent = item.name;
-            
-            // (v8) สรุปวันนี้ (ตัวใหญ่)
             dom.resultNet.textContent = formatYmd(netYmd);
             dom.resultContextDates.textContent = `(คำนวณจาก ${d1.toLocaleDateString('th-TH', { dateStyle: 'short' })} ถึง ${d2.toLocaleDateString('th-TH', { dateStyle: 'short' })})`;
-
-            // (v8) รายละเอียดใน <details>
             dom.resultTotalDays.textContent = netDays.toLocaleString() + ' วัน';
             
-            // (v8) ซ่อน/แสดง แถวอัตโนมัติ
             dom.resultRowRaw.classList.toggle('hidden', !hasAdjustments);
             dom.resultRaw.textContent = formatYmd(rawYmd);
-
             dom.resultRowLeave.classList.toggle('hidden', leaveDays <= 0);
             dom.resultLeave.textContent = formatYmd(item.leave);
-            
             dom.resultRowMult.classList.toggle('hidden', multDays <= 0);
             dom.resultMult.textContent = formatYmd(item.mult);
+            
+            // (v13) บันทึกข้อมูลสำหรับ AI
+            state.currentModalData = {
+                name: item.name,
+                netToday: netYmd,
+                netAtRetirement: netYmdAtRetirement,
+                countdown: countdownYmd,
+                leave: item.leave,
+                mult: item.mult
+            };
             
             dom.resultModalContainer.classList.remove('hidden');
         }
         
         function hideResultModal() {
             dom.resultModalContainer.classList.add('hidden');
+            state.currentModalData = null; // (v13)
         }
 
+        /**
+         * (v13) ใหม่: ฟังก์ชันเรียก AI วิเคราะห์ผล
+         */
+        async function handleAiAnalysis() {
+            if (!state.currentModalData) return;
+            
+            const aiProxyUrl = AI_PROXY_URL;
+            if (!aiProxyUrl || aiProxyUrl.includes("!!!_PASTE_")) {
+                showToast('ยังไม่ได้ตั้งค่า AI Proxy URL (ในโค้ด v11)', 'error');
+                return;
+            }
+            
+            const btn = dom.btnAiAnalyze;
+            const container = dom.aiAnalysisContainer;
+            
+            btn.disabled = true;
+            container.innerHTML = `<div class="ai-spinner"><i class="fa-solid fa-spinner"></i><span>AI กำลังวิเคราะห์...</span></div>`;
+            container.classList.remove('hidden');
+            
+            try {
+                const response = await fetch(aiProxyUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    // (v13) ส่ง action: 'analyze_results' และ payload
+                    body: JSON.stringify({ 
+                        action: 'analyze_results', 
+                        payload: state.currentModalData 
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success' && result.type === 'analysis' && result.analysisText) {
+                    container.innerHTML = `<p>${result.analysisText}</p>`;
+                } else {
+                    throw new Error(result.message || "AI Proxy Error (Invalid Response Type)");
+                }
+                
+            } catch (error) {
+                console.error("AI Analysis Fetch Error:", error);
+                container.innerHTML = `<p class="text-danger-600">AI วิเคราะห์ล้มเหลว: ${error.message}</p>`;
+            } finally {
+                btn.disabled = false;
+            }
+        }
         
         function renderManage() {
             dom.inputDataJson.value = JSON.stringify(state.savedCalculations, null, 2);
@@ -1472,16 +1389,17 @@
         window.handleEdit = handleEdit;
         window.handleDelete = handleDelete;
         window.renderSavedList = renderSavedList;
-        window.showResultModal = showResultModal; // (v4)
-        window.hideResultModal = hideResultModal; // (v8)
+        window.showResultModal = showResultModal; 
+        window.hideResultModal = hideResultModal; 
         window.saveAppsScriptUrl = (v) => { localStorage.setItem(GAS_URL_KEY, v); };
         window.saveDataFromJson = saveDataFromJson;
         window.exportBackup = exportBackup;
         window.triggerImport = triggerImport;
         window.handleFileImport = handleFileImport;
         window.triggerAutoSync = triggerAutoSync;
-        window.handleCreateNew = handleCreateNew; // (v6)
-        window.handleSmartDateInput = handleSmartDateInput; // (v8)
+        window.handleCreateNew = handleCreateNew;
+        window.handleSmartDateInput = handleSmartDateInput; 
+        window.handleAiAnalysis = handleAiAnalysis; // (v13)
 
         // --- Start App ---
         initApp();
