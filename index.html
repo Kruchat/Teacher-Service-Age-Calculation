@@ -889,6 +889,9 @@
             
             hideAddEditModal();
             renderSavedList();
+
+            // (ปรับปรุง) v4.2: แสดงผลลัพธ์ทันทีหลังจากบันทึก
+            window.showResultModal(record.id);
         }
 
         function renderSavedList() {
