@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#ffffff">
 
-    <title>แอปคำนวณอายุราชการ (v16 - Welcome Guide)</title>
+    <title>แอปคำนวณอายุราชการ (v17 - Scrollable Guide)</title>
     
     <!-- (Scripts and Fonts) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -175,8 +175,7 @@
             padding: 0;
             animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             max-height: 85vh;
-            overflow-y: auto;
-            overflow: hidden;
+            overflow-y: hidden; /* (v17) เปลี่ยนเป็น hidden */
         }
         .modal-close-btn {
             position: absolute; top: 16px; right: 16px;
@@ -285,9 +284,19 @@
         .instructions-box ol { list-style: decimal; padding-left: 20px; margin-top: 8px; }
         .instructions-box summary { font-weight: 600; cursor: pointer; }
 
-        /* (v16) Welcome Guide Modal */
+        /* (v17) Welcome Guide Modal Scroll Fix */
         #modal-container-guide {
             z-index: 2000; /* ให้อยู่เหนือ Modal อื่นๆ */
+        }
+        #modal-box-guide {
+            display: flex;
+            flex-direction: column;
+        }
+        #guide-scroll-content {
+            flex: 1; /* (v17) ให้ยืด/หด ตามพื้นที่ที่เหลือ */
+            overflow-y: auto; /* (v17) เลื่อนได้เฉพาะส่วนนี้ */
+            padding: 8px 4px 8px 4px; /* (v17) padding สำหรับ scrollbar */
+            margin: 0 0; 
         }
         .guide-step {
             display: flex;
@@ -330,62 +339,72 @@
     <!-- (File Inputs) -->
     <input type="file" id="import-file-input" class="hidden" accept=".json, .txt" onchange="window.handleFileImport(event)">
 
-    <!-- (v16) Welcome Guide Modal -->
+    <!-- (v17) Welcome Guide Modal (Scrollable) -->
     <div id="modal-container-guide" class="hidden">
-        <div id="modal-backdrop-guide" class="modal-backdrop"></div>
-        <div id="modal-box-guide" class="modal-container p-6">
+        <!-- (v17) Added onclick to backdrop -->
+        <div id="modal-backdrop-guide" class="modal-backdrop" onclick="window.hideGuideModal()"></div>
+        <!-- (v17) Added flex, flex-col -->
+        <div id="modal-box-guide" class="modal-container p-6 flex flex-col">
             
-            <div class="text-center mb-6">
+            <!-- (v17) Added Close Button -->
+            <button onclick="window.hideGuideModal()" class="modal-close-btn"><i class="fa-solid fa-times"></i></button>
+
+            <!-- (v17) Added shrink-0 -->
+            <div class="text-center mb-6 shrink-0">
                 <div class="w-20 h-20 bg-gradient-to-br from-brand-500 to-accent-500 text-white rounded-full flex items-center justify-center text-4xl mx-auto shadow-lg shadow-brand-200">
                     <i class="fa-solid fa-rocket"></i>
                 </div>
-                <h3 class="text-2xl font-bold text-slate-800 mt-4">ยินดีต้อนรับ (v16)</h3>
+                <h3 class="text-2xl font-bold text-slate-800 mt-4">ยินดีต้อนรับ (v17)</h3>
                 <p class="text-slate-600">คู่มือการใช้งาน (AI-First)</p>
             </div>
             
-            <div class="space-y-3">
-                <div class="guide-step">
-                    <div class="guide-step-icon bg-slate-100 text-slate-500">
-                        <i class="fa-solid fa-user-pen"></i>
+            <!-- (v17) Added Scrollable Wrapper -->
+            <div id="guide-scroll-content" class="flex-1 overflow-y-auto no-scrollbar -mx-1 px-1">
+                <div class="space-y-3">
+                    <div class="guide-step">
+                        <div class="guide-step-icon bg-slate-100 text-slate-500">
+                            <i class="fa-solid fa-user-pen"></i>
+                        </div>
+                        <div class="guide-step-text">
+                            <h5>1. กรอกชื่อ-สกุล</h5>
+                            <p>กรอกชื่อ-สกุล สำหรับบันทึกรายการ</p>
+                        </div>
                     </div>
-                    <div class="guide-step-text">
-                        <h5>1. กรอกชื่อ-สกุล</h5>
-                        <p>กรอกชื่อ-สกุล สำหรับบันทึกรายการ</p>
+                    
+                    <div class="guide-step">
+                        <div class="guide-step-icon bg-ai-100 text-ai-600">
+                            <i class="fa-solid fa-keyboard"></i>
+                        </div>
+                        <div class="guide-step-text">
+                            <h5>2. พิมพ์วันที่ (AI)</h5>
+                            <p>พิมพ์วันที่บรรจุ (เช่น '10 กค 34') AI จะตรวจสอบและแปลงค่าให้ (รอจน Spinner หาย)</p>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="guide-step">
-                    <div class="guide-step-icon bg-ai-100 text-ai-600">
-                        <i class="fa-solid fa-keyboard"></i>
-                    </div>
-                    <div class="guide-step-text">
-                        <h5>2. พิมพ์วันที่ (AI)</h5>
-                        <p>พิมพ์วันที่บรรจุ (เช่น '10 กค 34') AI จะตรวจสอบและแปลงค่าให้ (รอจน Spinner หาย)</p>
-                    </div>
-                </div>
 
-                <div class="guide-step">
-                    <div class="guide-step-icon bg-ai-100 text-ai-600">
-                        <i class="fa-solid fa-cake-candles"></i>
+                    <div class="guide-step">
+                        <div class="guide-step-icon bg-ai-100 text-ai-600">
+                            <i class="fa-solid fa-cake-candles"></i>
+                        </div>
+                        <div class="guide-step-text">
+                            <h5>3. พิมพ์วันเกิด (AI)</h5>
+                            <p>พิมพ์วันเกิด (เช่น '15 พ.ค. 2530') AI จะตรวจสอบเช่นกัน</p>
+                        </div>
                     </div>
-                    <div class="guide-step-text">
-                        <h5>3. พิมพ์วันเกิด (AI)</h5>
-                        <p>พิมพ์วันเกิด (เช่น '15 พ.ค. 2530') AI จะตรวจสอบเช่นกัน</p>
+
+                    <div class="guide-step">
+                        <div class="guide-step-icon bg-accent-100 text-accent-600">
+                            <i class="fa-solid fa-calculator"></i>
+                        </div>
+                        <div class="guide-step-text">
+                            <h5>4. ปุ่มคำนวณปรากฏ</h5>
+                            <p>เมื่อข้อมูลครบ 3 ช่อง ปุ่ม "คำนวณและบันทึก" สีเขียวจะปรากฏขึ้น</p>
+                        </div>
                     </div>
                 </div>
+            </div> <!-- (v17) End Scrollable Wrapper -->
 
-                <div class="guide-step">
-                    <div class="guide-step-icon bg-accent-100 text-accent-600">
-                        <i class="fa-solid fa-calculator"></i>
-                    </div>
-                    <div class="guide-step-text">
-                        <h5>4. ปุ่มคำนวณปรากฏ</h5>
-                        <p>เมื่อข้อมูลครบ 3 ช่อง ปุ่ม "คำนวณและบันทึก" สีเขียวจะปรากฏขึ้น</p>
-                    </div>
-                </div>
-            </div>
-
-            <button id="btn-close-guide" class="btn btn-primary w-full mt-6">
+            <!-- (v17) Added shrink-0 -->
+            <button id="btn-close-guide" class="btn btn-primary w-full mt-6 shrink-0">
                 <i class="fa-solid fa-check mr-2"></i>
                 เริ่มใช้งาน
             </button>
@@ -448,7 +467,7 @@
         <header class="px-6 py-4 flex justify-between items-center sticky top-0 shadow-sm bg-white/80 z-40 backdrop-filter: blur(12px) border-b border-slate-100/80">
             <div class="flex flex-col">
                 <h1 class="text-xl font-bold text-brand-600">คำนวณอายุราชการ</h1>
-                <p id="header-subtitle" class="text-sm text-slate-500">v16 - Welcome Guide</p>
+                <p id="header-subtitle" class="text-sm text-slate-500">v17 - Scrollable Guide</p>
             </div>
             <div id="header-icon-container" class="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 border-4 border-white shadow-md">
                 <i id="header-icon" class="fa-solid fa-calculator text-xl"></i>
